@@ -111,19 +111,21 @@ export class BusinessService {
 
   static getNextSequence(prefix: string): string {
     const db = DBManager.getDb();
+    const cleanPrefix = (prefix || 'GEN').trim().toUpperCase();
     const now = new Date().toISOString();
-    let nextNum = 1001;
 
-    const row = db.prepare('SELECT current_number FROM invoice_sequences WHERE prefix = ?').get(prefix);
-    if (!row) {
-      db.prepare('INSERT INTO invoice_sequences (prefix, current_number, updated_at) VALUES (?, ?, ?)')
-        .run(prefix, nextNum, now);
-    } else {
-      nextNum = row.current_number + 1;
-      db.prepare('UPDATE invoice_sequences SET current_number = ?, updated_at = ? WHERE prefix = ?')
-        .run(nextNum, now, prefix);
-    }
-
-    return `${prefix}-${nextNum}`;
+    return db.transaction(() => {
+      let nextNum = 1001;
+      const row = db.prepare('SELECT current_number FROM invoice_sequences WHERE prefix = ?').get(cleanPrefix);
+      if (!row) {
+        db.prepare('INSERT INTO invoice_sequences (prefix, current_number, updated_at) VALUES (?, ?, ?)')
+          .run(cleanPrefix, nextNum, now);
+      } else {
+        nextNum = row.current_number + 1;
+        db.prepare('UPDATE invoice_sequences SET current_number = ?, updated_at = ? WHERE prefix = ?')
+          .run(nextNum, now, cleanPrefix);
+      }
+      return `${cleanPrefix}-${nextNum}`;
+    })();
   }
 }

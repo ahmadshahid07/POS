@@ -10,12 +10,16 @@ export interface AppConfig {
 }
 
 export class ConfigService {
-  private static configDir = path.join(
+  public static configDir = path.join(
     process.env.APPDATA || (process.platform === 'darwin' ? path.join(os.homedir(), 'Library', 'Preferences') : path.join(os.homedir(), '.config')),
     'SKYTHS'
   );
 
   private static configFile = path.join(ConfigService.configDir, 'app_config.json');
+
+  static getDefaultDbPath(): string {
+    return path.join(this.configDir, 'skyths_inventory.db');
+  }
 
   static getConfig(): AppConfig {
     try {

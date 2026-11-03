@@ -161,11 +161,11 @@ export const PurchaseReturnsView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#080808] flex items-center gap-2">
-            <RotateCcw className="text-[#353536]" size={22} />
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <RotateCcw className="text-[#ACADB1]" size={22} />
             Purchase Returns & Supplier Debit Notes
           </h1>
-          <p className="text-xs text-[#706F70]">
+          <p className="text-xs text-[#ACADB1]">
             Return damaged or incorrect stock to suppliers, issue debit notes, and adjust payables.
           </p>
         </div>
@@ -185,22 +185,22 @@ export const PurchaseReturnsView: React.FC = () => {
             placeholder="Search by debit note number, supplier, or return reason..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-[#706F70] focus:outline-none focus:ring-1 focus:ring-white/20"
           />
         </div>
       </GlassCard>
 
       {/* Returns Table */}
       <GlassCard className="overflow-hidden">
-        <div className="p-4 border-b border-black/5 flex items-center justify-between bg-[#EBEDF1]/30">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#080808]">Supplier Returns Ledger</span>
-          <span className="text-[11px] font-mono text-[#706F70]">{filtered.length} debit notes recorded</span>
+        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+          <span className="text-xs font-bold uppercase tracking-wider text-white">Supplier Returns Ledger</span>
+          <span className="text-[11px] font-mono text-[#ACADB1]">{filtered.length} debit notes recorded</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-black/5 bg-[#EBEDF1]/60 text-[10px] font-mono uppercase tracking-wider text-[#706F70]">
+              <tr className="border-b border-white/10 bg-white/5 text-[10px] font-mono uppercase tracking-wider text-[#ACADB1]">
                 <th className="py-2.5 px-4">Debit Note #</th>
                 <th className="py-2.5 px-4">Date</th>
                 <th className="py-2.5 px-4">Supplier</th>
@@ -209,33 +209,33 @@ export const PurchaseReturnsView: React.FC = () => {
                 <th className="py-2.5 px-4 text-right">Debit Value</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5">
+            <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[#706F70]">
+                  <td colSpan={6} className="py-8 text-center text-[#ACADB1]">
                     Loading supplier returns...
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-xs text-[#706F70]">
+                  <td colSpan={6} className="py-10 text-center text-xs text-[#ACADB1]">
                     No purchase returns recorded yet. Click "Issue Supplier Debit Note" to return defective stock.
                   </td>
                 </tr>
               ) : (
                 filtered.map((r) => (
-                  <tr key={r.id} className="hover:bg-black/[0.02] transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#080808]">{r.return_number}</td>
-                    <td className="py-3 px-4 font-mono text-[11px] text-[#706F70]">
+                  <tr key={r.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-white">{r.return_number}</td>
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#ACADB1]">
                       {new Date(r.return_date).toLocaleDateString()}
                     </td>
-                    <td className="py-3 px-4 font-medium text-[#080808]">{r.supplier_name}</td>
-                    <td className="py-3 px-4 text-[#353536]">
+                    <td className="py-3 px-4 font-medium text-white">{r.supplier_name}</td>
+                    <td className="py-3 px-4 text-[#D4D8DF]">
                       {r.items && r.items.length > 0 ? (
                         <div className="space-y-0.5">
                           {r.items.map((itm) => (
                             <div key={itm.id} className="text-[11px]">
-                              {itm.product_name} <span className="font-mono text-[#706F70]">({itm.quantity} units @ {itm.unit_cost})</span>
+                              {itm.product_name} <span className="font-mono text-[#ACADB1]">({itm.quantity} units @ {itm.unit_cost})</span>
                             </div>
                           ))}
                         </div>
@@ -243,8 +243,8 @@ export const PurchaseReturnsView: React.FC = () => {
                         '—'
                       )}
                     </td>
-                    <td className="py-3 px-4 text-[#706F70] max-w-xs truncate">{r.reason}</td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-[#080808]">
+                    <td className="py-3 px-4 text-[#ACADB1] max-w-xs truncate">{r.reason}</td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-white">
                       {currency} {r.total_amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </td>
                   </tr>
@@ -264,16 +264,16 @@ export const PurchaseReturnsView: React.FC = () => {
       >
         <form onSubmit={handleCreateReturn} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-[#353536] mb-1">Target Supplier</label>
+            <label className="block text-xs font-medium text-[#ACADB1] mb-1">Target Supplier</label>
             <select
               value={selectedSupplierId}
               onChange={(e) => setSelectedSupplierId(Number(e.target.value) || '')}
-              className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+              className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
               required
             >
-              <option value="">Select a supplier...</option>
+              <option value="" className="bg-[#141415] text-white">Select a supplier...</option>
               {suppliers.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={s.id} className="bg-[#141415] text-white">
                   {s.name} (Payable: {currency} {s.balance_payable.toLocaleString()})
                 </option>
               ))}
@@ -281,16 +281,16 @@ export const PurchaseReturnsView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#353536] mb-1">Product to Return</label>
+            <label className="block text-xs font-medium text-[#ACADB1] mb-1">Product to Return</label>
             <select
               value={selectedProductId}
               onChange={(e) => handleProductChange(Number(e.target.value))}
-              className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+              className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
               required
             >
-              <option value="">Select product to return...</option>
+              <option value="" className="bg-[#141415] text-white">Select product to return...</option>
               {products.map((p) => (
-                <option key={p.id} value={p.id}>
+                <option key={p.id} value={p.id} className="bg-[#141415] text-white">
                   {p.name} — Current Stock: {p.current_stock} (Cost: {currency} {p.cost_price})
                 </option>
               ))}
@@ -320,25 +320,25 @@ export const PurchaseReturnsView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#353536] mb-1">Return Reason / Damage Report</label>
+            <label className="block text-xs font-medium text-[#ACADB1] mb-1">Return Reason / Damage Report</label>
             <input
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+              className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-[#706F70] focus:outline-none focus:ring-1 focus:ring-white/20"
               placeholder="e.g. Expired batch, physical transit damage, wrong specifications"
               required
             />
           </div>
 
-          <div className="p-3 rounded-lg bg-black/5 text-xs flex justify-between font-medium">
-            <span className="text-[#706F70]">Total Debit Note Value:</span>
-            <span className="font-mono font-bold text-[#080808]">
+          <div className="p-3 rounded-lg bg-white/5 border border-white/10 text-xs flex justify-between font-medium">
+            <span className="text-[#ACADB1]">Total Debit Note Value:</span>
+            <span className="font-mono font-bold text-white">
               {currency} {((parseFloat(returnQty) || 0) * (parseFloat(unitCost) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </span>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
             <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>

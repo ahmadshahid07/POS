@@ -119,17 +119,17 @@ export const NotificationsView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#080808] flex items-center gap-2">
-            <Bell className="text-[#353536]" size={22} />
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Bell className="text-[#ACADB1]" size={22} />
             Notifications & Business Alerts
           </h1>
-          <p className="text-xs text-[#706F70]">
+          <p className="text-xs text-[#ACADB1]">
             Proactive alerts for stock shortages, overdue customer credit balances, and operational notifications.
           </p>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1 bg-[#EBEDF1]/60 p-1 rounded-xl text-xs">
+        <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-xl text-xs">
           {(['all', 'danger', 'warning', 'info'] as const).map((lvl) => (
             <button
               key={lvl}
@@ -137,7 +137,7 @@ export const NotificationsView: React.FC = () => {
               className={`px-3 py-1.5 rounded-lg capitalize transition-all cursor-pointer font-medium ${
                 filter === lvl
                   ? 'bg-white text-[#080808] shadow-glass-sm font-bold'
-                  : 'text-[#706F70] hover:text-[#080808]'
+                  : 'text-[#ACADB1] hover:text-white'
               }`}
             >
               {lvl === 'danger' ? 'Critical' : lvl}
@@ -149,70 +149,70 @@ export const NotificationsView: React.FC = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <GlassCard className="p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-50 text-[#DC2626] border border-red-200 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center font-bold">
             <ShieldAlert size={20} />
           </div>
           <div>
-            <div className="text-lg font-bold font-mono text-[#DC2626]">
+            <div className="text-lg font-bold font-mono text-red-400">
               {alerts.filter((a) => a.severity === 'danger').length}
             </div>
-            <div className="text-[11px] text-[#706F70]">Critical Alerts (Out of Stock)</div>
+            <div className="text-[11px] text-[#ACADB1]">Critical Alerts (Out of Stock)</div>
           </div>
         </GlassCard>
 
         <GlassCard className="p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold">
             <AlertTriangle size={20} />
           </div>
           <div>
-            <div className="text-lg font-bold font-mono text-amber-700">
+            <div className="text-lg font-bold font-mono text-amber-400">
               {alerts.filter((a) => a.severity === 'warning').length}
             </div>
-            <div className="text-[11px] text-[#706F70]">Warnings (Low Stock / Credit)</div>
+            <div className="text-[11px] text-[#ACADB1]">Warnings (Low Stock / Credit)</div>
           </div>
         </GlassCard>
 
         <GlassCard className="p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#EBEDF1] text-[#353536] border border-black/10 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-xl bg-white/5 text-white border border-white/10 flex items-center justify-center font-bold">
             <CheckCircle2 size={20} />
           </div>
           <div>
-            <div className="text-lg font-bold font-mono text-[#080808]">{alerts.length}</div>
-            <div className="text-[11px] text-[#706F70]">Total System Notices</div>
+            <div className="text-lg font-bold font-mono text-white">{alerts.length}</div>
+            <div className="text-[11px] text-[#ACADB1]">Total System Notices</div>
           </div>
         </GlassCard>
       </div>
 
       {/* Alert List */}
       <GlassCard className="overflow-hidden">
-        <div className="p-4 border-b border-black/5 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#080808]">Active Alerts Ledger</span>
-          <span className="text-[11px] font-mono text-[#706F70]">{filteredAlerts.length} notices</span>
+        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+          <span className="text-xs font-bold uppercase tracking-wider text-white">Active Alerts Ledger</span>
+          <span className="text-[11px] font-mono text-[#ACADB1]">{filteredAlerts.length} notices</span>
         </div>
 
-        <div className="divide-y divide-black/5">
+        <div className="divide-y divide-white/5">
           {loading ? (
-            <div className="p-12 text-center text-xs text-[#706F70]">Analyzing business records...</div>
+            <div className="p-12 text-center text-xs text-[#ACADB1]">Analyzing business records...</div>
           ) : filteredAlerts.length === 0 ? (
             <div className="p-12 text-center space-y-2">
-              <CheckCircle2 size={32} className="mx-auto text-emerald-600" />
-              <p className="text-xs font-medium text-[#080808]">All systems optimal</p>
-              <p className="text-[11px] text-[#706F70]">No critical alerts or inventory shortages requiring attention.</p>
+              <CheckCircle2 size={32} className="mx-auto text-emerald-400" />
+              <p className="text-xs font-medium text-white">All systems optimal</p>
+              <p className="text-[11px] text-[#ACADB1]">No critical alerts or inventory shortages requiring attention.</p>
             </div>
           ) : (
             filteredAlerts.map((a) => (
               <div
                 key={a.id}
-                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-black/[0.02] transition-colors"
+                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center mt-0.5 ${
                       a.severity === 'danger'
-                        ? 'bg-red-50 text-[#DC2626] border border-red-200'
+                        ? 'bg-red-500/10 text-red-400 border border-red-500/20'
                         : a.severity === 'warning'
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-black/5 text-[#353536]'
+                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                        : 'bg-white/5 text-[#D4D8DF] border border-white/10'
                     }`}
                   >
                     {a.category === 'inventory' ? (
@@ -226,7 +226,7 @@ export const NotificationsView: React.FC = () => {
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-[#080808]">{a.title}</span>
+                      <span className="text-xs font-bold text-white">{a.title}</span>
                       <Badge
                         variant={
                           a.severity === 'danger'
@@ -239,7 +239,7 @@ export const NotificationsView: React.FC = () => {
                         {a.category.toUpperCase()}
                       </Badge>
                     </div>
-                    <p className="text-[11px] text-[#706F70] mt-1 max-w-2xl">{a.description}</p>
+                    <p className="text-[11px] text-[#ACADB1] mt-1 max-w-2xl">{a.description}</p>
                   </div>
                 </div>
 

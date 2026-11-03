@@ -153,21 +153,27 @@ export class ReportService {
     // Monthly Profit & Loss for Gross & Net Profit this month
     const pnlMonth = this.getProfitAndLoss(firstDayOfMonth, today);
 
-    // Daily Sales Trend (past 14 days)
+    // Daily Sales & Exact Profit Trend (past 14 days)
     const dailySalesRows = db.prepare(`
       SELECT 
-        date(sale_date) as d,
-        COALESCE(SUM(grand_total), 0) as sales
-      FROM sales
-      WHERE status != 'voided' AND date(sale_date) >= date('now', '-14 days')
-      GROUP BY date(sale_date)
-      ORDER BY date(sale_date) ASC
+        date(s.sale_date) as d,
+        COALESCE(SUM(s.grand_total), 0) as sales,
+        COALESCE(SUM((s.subtotal - s.discount_amount) - COALESCE(items.cogs, 0)), 0) as profit
+      FROM sales s
+      LEFT JOIN (
+        SELECT sale_id, SUM(quantity * cost_price_snapshot) as cogs
+        FROM sale_items
+        GROUP BY sale_id
+      ) items ON items.sale_id = s.id
+      WHERE s.status != 'voided' AND date(s.sale_date) >= date('now', '-14 days')
+      GROUP BY date(s.sale_date)
+      ORDER BY date(s.sale_date) ASC
     `).all();
 
     const dailySales = dailySalesRows.map((r: any) => ({
       date: r.d,
-      sales: r.sales,
-      profit: Math.round(r.sales * 0.25) // estimated trend indicator
+      sales: Math.round(Number(r.sales || 0) * 100) / 100,
+      profit: Math.round(Number(r.profit || 0) * 100) / 100
     }));
 
     // Category Breakdown

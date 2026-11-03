@@ -15,6 +15,10 @@ release/
 *.db-journal
 *.bak
 SKYTHS_Data/
+backups/
+
+# Scratch & temporary frame dumps
+scratch*/
 
 # Logs & temp
 logs/

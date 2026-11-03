@@ -6,19 +6,20 @@ import { Modal } from '../common/Modal';
 import { CustomerStatementModal } from './CustomerStatementModal';
 import { Customer } from '../../types';
 import { useAppStore } from '../../store/useAppStore';
-import { Users, Plus, RefreshCw, Phone, MapPin, CreditCard, DollarSign, FileText } from 'lucide-react';
+import { Users, Plus, RefreshCw, Phone, MapPin, Mail, CreditCard, DollarSign, FileText, Edit2, Trash2, AlertTriangle, UserCheck } from 'lucide-react';
 
 export const CustomersView: React.FC = () => {
   const { businessSettings, user } = useAppStore();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
   // Statement of Account Modal
   const [selectedCustForStatement, setSelectedCustForStatement] = useState<Customer | null>(null);
   const [isStatementOpen, setIsStatementOpen] = useState(false);
 
-  // New Customer Form
+  // Customer Form State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -26,7 +27,7 @@ export const CustomersView: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Payment Form
+  // Payment Form State
   const [selectedCustForPay, setSelectedCustForPay] = useState<Customer | null>(null);
   const [payAmount, setPayAmount] = useState<number | ''>('');
   const [payMethod, setPayMethod] = useState('cash');
@@ -53,30 +54,75 @@ export const CustomersView: React.FC = () => {
     loadCustomers();
   }, []);
 
-  const handleCreateCustomer = async (e: React.FormEvent) => {
+  const handleOpenAdd = () => {
+    setEditingCustomer(null);
+    setName('');
+    setPhone('');
+    setEmail('');
+    setAddress('');
+    setNotes('');
+    setError(null);
+    setIsAddOpen(true);
+  };
+
+  const handleOpenEdit = (c: Customer) => {
+    setEditingCustomer(c);
+    setName(c.name);
+    setPhone(c.phone || '');
+    setEmail(c.email || '');
+    setAddress(c.address || '');
+    setNotes(c.notes || '');
+    setError(null);
+    setIsAddOpen(true);
+  };
+
+  const handleSubmitCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     setError(null);
 
     try {
       if (typeof window !== 'undefined' && (window as any).skythsAPI) {
-        await (window as any).skythsAPI.createCustomer({
-          name: name.trim(),
-          phone: phone.trim() || undefined,
-          email: email.trim() || undefined,
-          address: address.trim() || undefined,
-          notes: notes.trim() || undefined,
-        });
+        if (editingCustomer) {
+          await (window as any).skythsAPI.updateCustomer(editingCustomer.id, {
+            name: name.trim(),
+            phone: phone.trim() || null,
+            email: email.trim() || null,
+            address: address.trim() || null,
+            notes: notes.trim() || null,
+          });
+        } else {
+          await (window as any).skythsAPI.createCustomer({
+            name: name.trim(),
+            phone: phone.trim() || undefined,
+            email: email.trim() || undefined,
+            address: address.trim() || undefined,
+            notes: notes.trim() || undefined,
+          });
+        }
       }
-      setName('');
-      setPhone('');
-      setEmail('');
-      setAddress('');
-      setNotes('');
       setIsAddOpen(false);
       loadCustomers();
     } catch (err: any) {
-      setError(err.message || 'Failed to create customer.');
+      setError(err.message || 'Failed to save customer.');
+    }
+  };
+
+  const handleDeleteCustomer = async (c: Customer) => {
+    if (c.balance_receivable > 0) {
+      alert(`Cannot delete customer "${c.name}" with an outstanding balance of ${currencySymbol} ${c.balance_receivable}.`);
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete customer "${c.name}"?`)) return;
+
+    try {
+      if (typeof window !== 'undefined' && (window as any).skythsAPI) {
+        await (window as any).skythsAPI.deleteCustomer(c.id);
+      }
+      loadCustomers();
+    } catch (err: any) {
+      alert(`Delete error: ${err.message}`);
     }
   };
 
@@ -100,21 +146,24 @@ export const CustomersView: React.FC = () => {
       setPayRef('');
       loadCustomers();
     } catch (err: any) {
-      alert(`Payment error: ${err.message}`);
+      alert(`Payment record failed: ${err.message}`);
     } finally {
       setPayLoading(false);
     }
   };
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-200">
-      <div className="flex items-center justify-between">
+    <div className="space-y-5 animate-in fade-in duration-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-            <Users size={20} /> Customers & Accounts Receivable
+            <div className="p-2 rounded-xl bg-gradient-to-br from-[#353536] to-[#080808] border border-white/20">
+              <Users size={18} className="text-white" />
+            </div>
+            Customers & Credit Accounts
           </h1>
-          <p className="text-xs text-[#ACADB1]">
-            Customer profiles, transaction histories, and outstanding credit ledger balances.
+          <p className="text-xs text-[#ACADB1] mt-0.5">
+            Maintain customer ledgers, track credit receivables, record payments, and export account statements.
           </p>
         </div>
 
@@ -131,7 +180,7 @@ export const CustomersView: React.FC = () => {
             size="sm"
             variant="primary"
             leftIcon={<Plus size={15} />}
-            onClick={() => setIsAddOpen(true)}
+            onClick={handleOpenAdd}
           >
             Add Customer
           </Button>
@@ -140,15 +189,20 @@ export const CustomersView: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {customers.map((c) => (
-          <GlassCard key={c.id} className="p-4 flex flex-col justify-between">
+          <GlassCard key={c.id} className="p-4 flex flex-col justify-between border-white/10 hover:border-white/25 transition-all group">
             <div>
               <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-white">{c.name}</h3>
-                  {c.phone && <span className="text-xs text-[#ACADB1]">{c.phone}</span>}
+                <div className="flex items-start gap-2.5">
+                  <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-[#D4D8DF] group-hover:scale-105 transition-transform mt-0.5">
+                    <UserCheck size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-white tracking-tight">{c.name}</h3>
+                    {c.phone && <span className="text-xs text-[#ACADB1] block font-mono">{c.phone}</span>}
+                  </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-[#706F70] uppercase block">Receivable Balance</span>
+                  <span className="text-[10px] text-[#706F70] uppercase font-mono block">Receivable</span>
                   <span
                     className={`text-sm font-mono font-bold ${
                       c.balance_receivable > 0 ? 'text-[#FBBF24]' : 'text-[#4ADE80]'
@@ -159,11 +213,17 @@ export const CustomersView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-3 space-y-1 text-xs text-[#ACADB1]">
+              <div className="mt-3.5 space-y-1 text-xs text-[#ACADB1] pt-3 border-t border-white/5">
+                {c.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail size={12} className="text-[#706F70] shrink-0" />
+                    <span className="truncate text-[11px]">{c.email}</span>
+                  </div>
+                )}
                 {c.address && (
                   <div className="flex items-center gap-2">
-                    <MapPin size={13} className="text-[#706F70]" />
-                    <span className="truncate">{c.address}</span>
+                    <MapPin size={12} className="text-[#706F70] shrink-0" />
+                    <span className="truncate text-[11px]">{c.address}</span>
                   </div>
                 )}
                 {c.notes && (
@@ -172,168 +232,204 @@ export const CustomersView: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
-              <span className="text-[11px] text-[#706F70]">
-                Purchases: {currencySymbol} {c.total_purchases.toLocaleString()}
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px]">
+              <span className="text-[#706F70] font-mono">
+                Sales: {currencySymbol} {c.total_purchases.toLocaleString()}
               </span>
 
-              <Button
-                size="sm"
-                variant="ghost"
-                leftIcon={<FileText size={13} />}
-                onClick={() => {
-                  setSelectedCustForStatement(c);
-                  setIsStatementOpen(true);
-                }}
-              >
-                Statement
-              </Button>
-              {c.balance_receivable > 0 && (
+              <div className="flex items-center gap-1">
+                {c.balance_receivable > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-[11px]"
+                    leftIcon={<DollarSign size={12} />}
+                    onClick={() => {
+                      setSelectedCustForPay(c);
+                      setPayAmount(c.balance_receivable);
+                    }}
+                  >
+                    Pay
+                  </Button>
+                )}
                 <Button
                   size="sm"
-                  variant="outline"
-                  leftIcon={<DollarSign size={13} />}
+                  variant="ghost"
+                  className="h-7 px-2 text-[11px]"
+                  leftIcon={<FileText size={12} />}
                   onClick={() => {
-                    setSelectedCustForPay(c);
-                    setPayAmount(c.balance_receivable);
+                    setSelectedCustForStatement(c);
+                    setIsStatementOpen(true);
                   }}
                 >
-                  Receive Payment
+                  Statement
                 </Button>
-              )}
+                <button
+                  onClick={() => handleOpenEdit(c)}
+                  className="p-1.5 rounded-lg text-[#ACADB1] hover:text-white hover:bg-white/10 transition-colors"
+                  title="Edit Customer"
+                >
+                  <Edit2 size={13} />
+                </button>
+                <button
+                  onClick={() => handleDeleteCustomer(c)}
+                  className="p-1.5 rounded-lg text-[#706F70] hover:text-[#F87171] hover:bg-red-500/10 transition-colors"
+                  title="Delete Customer"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
             </div>
           </GlassCard>
         ))}
       </div>
 
       {customers.length === 0 && !loading && (
-        <div className="py-16 text-center text-xs text-[#706F70]">
-          No customers registered yet. Walk-in sales do not require registration, but registered customers can be given credit accounts.
+        <div className="py-16 text-center text-xs text-[#706F70] rounded-2xl border border-white/5 bg-white/[0.02]">
+          No customers registered yet. Click "Add Customer" to create accounts.
         </div>
       )}
 
-      {/* Add Customer Modal */}
+      {/* Add / Edit Customer Modal */}
       <Modal
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
-        title="Register New Customer"
-        subtitle="Create a customer account for credit tracking and invoices"
+        title={editingCustomer ? 'Edit Customer' : 'Add New Customer'}
+        subtitle={editingCustomer ? `Update information for "${editingCustomer.name}"` : 'Register a customer for credit sales, history, and receipts'}
         maxWidth="md"
       >
-        <form onSubmit={handleCreateCustomer} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmitCustomer} className="flex flex-col gap-4">
           {error && (
-            <div className="p-3 rounded-xl bg-[#DC2626]/10 border border-[#DC2626]/30 text-xs text-[#F87171]">
-              {error}
+            <div className="p-3 rounded-xl bg-[#DC2626]/10 border border-[#DC2626]/30 flex items-center gap-2 text-xs text-[#F87171]">
+              <AlertTriangle size={15} />
+              <span>{error}</span>
             </div>
           )}
 
           <Input
-            label="Customer Name *"
+            label="Full Name / Store Name *"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Asad Ullah Khan"
-            required
+            placeholder="e.g. Tariq Mehmood"
             autoFocus
+            required
           />
 
-          <Input
-            label="Phone Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+92 300 0000000"
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Phone Number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="e.g. +92 300 1234567"
+            />
+            <Input
+              label="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="e.g. customer@email.com"
+            />
+          </div>
 
           <Input
-            label="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="customer@email.com"
-          />
-
-          <Input
-            label="Home / Shop Address"
+            label="Physical Address / Delivery Location"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="e.g. Street 4, Sector G-9, Islamabad"
+            placeholder="e.g. House 42, Street 5, Model Town"
           />
 
           <Input
-            label="Notes"
+            label="Notes / Terms (Optional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Credit limit or customer reference"
+            placeholder="e.g. Wholesale buyer, credit limit PKR 50,000"
           />
 
           <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
             <Button variant="ghost" type="button" onClick={() => setIsAddOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Register Customer</Button>
+            <Button type="submit">
+              {editingCustomer ? 'Update Customer' : 'Save Customer'}
+            </Button>
           </div>
         </form>
       </Modal>
 
       {/* Record Payment Modal */}
-      {selectedCustForPay && (
-        <Modal
-          isOpen={!!selectedCustForPay}
-          onClose={() => setSelectedCustForPay(null)}
-          title={`Record Payment from ${selectedCustForPay.name}`}
-          subtitle={`Current Outstanding Receivable: ${currencySymbol} ${selectedCustForPay.balance_receivable.toFixed(2)}`}
-          maxWidth="md"
-        >
-          <form onSubmit={handleRecordPayment} className="flex flex-col gap-4">
-            <Input
-              type="number"
-              min="1"
-              max={selectedCustForPay.balance_receivable}
-              label="Amount Received (₨) *"
-              value={payAmount}
-              onChange={(e) => setPayAmount(e.target.value ? Number(e.target.value) : '')}
-              required
-              autoFocus
-            />
+      <Modal
+        isOpen={!!selectedCustForPay}
+        onClose={() => setSelectedCustForPay(null)}
+        title="Record Customer Payment"
+        subtitle={`Collect receivable from ${selectedCustForPay?.name || ''}`}
+        maxWidth="sm"
+      >
+        <form onSubmit={handleRecordPayment} className="flex flex-col gap-4">
+          <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center text-xs">
+            <span className="text-[#ACADB1]">Total Outstanding Due:</span>
+            <span className="font-mono font-bold text-[#FBBF24]">
+              {currencySymbol} {selectedCustForPay?.balance_receivable.toLocaleString()}
+            </span>
+          </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-[#ACADB1]">Payment Channel *</label>
-              <select
-                value={payMethod}
-                onChange={(e) => setPayMethod(e.target.value)}
-                className="rounded-xl bg-[#0E0E0F]/80 border border-white/10 px-3 py-2 text-sm text-[#EBEDF1]"
-              >
-                <option value="cash">Cash (Updates Cash Drawer)</option>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="easypaisa">Easypaisa</option>
-                <option value="jazzcash">JazzCash</option>
-              </select>
-            </div>
+          <Input
+            label="Payment Amount *"
+            type="number"
+            step="any"
+            value={payAmount}
+            onChange={(e) => setPayAmount(e.target.value ? Number(e.target.value) : '')}
+            placeholder="0.00"
+            autoFocus
+            required
+          />
 
-            <Input
-              label="Payment Reference / Slip #"
-              value={payRef}
-              onChange={(e) => setPayRef(e.target.value)}
-              placeholder="e.g. Bank slip or transaction ID"
-            />
+          <div>
+            <label className="text-xs font-medium text-[#ACADB1] block mb-1.5">
+              Payment Channel
+            </label>
+            <select
+              value={payMethod}
+              onChange={(e) => setPayMethod(e.target.value)}
+              className="w-full bg-[#0E0E0F] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white/30"
+            >
+              <option value="cash">Cash In Hand</option>
+              <option value="bank_transfer">Bank Wire / Transfer</option>
+              <option value="easypaisa">Easypaisa</option>
+              <option value="jazzcash">JazzCash</option>
+              <option value="cheque">Bank Cheque</option>
+            </select>
+          </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
-              <Button variant="ghost" type="button" onClick={() => setSelectedCustForPay(null)}>
-                Cancel
-              </Button>
-              <Button type="submit" isLoading={payLoading}>
-                Confirm Receipt
-              </Button>
-            </div>
-          </form>
-        </Modal>
+          <Input
+            label="Reference / Slip Number (Optional)"
+            value={payRef}
+            onChange={(e) => setPayRef(e.target.value)}
+            placeholder="e.g. TRX-992384"
+          />
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+            <Button variant="ghost" type="button" onClick={() => setSelectedCustForPay(null)}>
+              Cancel
+            </Button>
+            <Button type="submit" isLoading={payLoading}>
+              Confirm Receipt
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Customer Statement Modal */}
+      {selectedCustForStatement && (
+        <CustomerStatementModal
+          isOpen={isStatementOpen}
+          onClose={() => {
+            setIsStatementOpen(false);
+            setSelectedCustForStatement(null);
+          }}
+          customer={selectedCustForStatement}
+          businessSettings={businessSettings}
+        />
       )}
-
-      {/* Customer Statement of Account Modal */}
-      <CustomerStatementModal
-        isOpen={isStatementOpen}
-        onClose={() => setIsStatementOpen(false)}
-        customer={selectedCustForStatement}
-        businessSettings={businessSettings}
-      />
     </div>
   );
 };

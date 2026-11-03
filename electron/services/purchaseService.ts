@@ -257,4 +257,46 @@ export class PurchaseService {
 
     return db.prepare('SELECT * FROM suppliers WHERE id = ?').get(Number(res.lastInsertRowid));
   }
+
+  static updateSupplier(id: number, data: Partial<Supplier>): Supplier {
+    const db = DBManager.getDb();
+    const now = new Date().toISOString();
+    db.prepare(`
+      UPDATE suppliers
+      SET name = COALESCE(?, name),
+          contact_person = COALESCE(?, contact_person),
+          phone = COALESCE(?, phone),
+          email = COALESCE(?, email),
+          address = COALESCE(?, address),
+          tax_number = COALESCE(?, tax_number),
+          notes = COALESCE(?, notes),
+          updated_at = ?
+      WHERE id = ?
+    `).run(
+      data.name !== undefined ? data.name.trim() : null,
+      data.contact_person !== undefined ? (data.contact_person ? data.contact_person.trim() : null) : null,
+      data.phone !== undefined ? (data.phone ? data.phone.trim() : null) : null,
+      data.email !== undefined ? (data.email ? data.email.trim() : null) : null,
+      data.address !== undefined ? (data.address ? data.address.trim() : null) : null,
+      data.tax_number !== undefined ? (data.tax_number ? data.tax_number.trim() : null) : null,
+      data.notes !== undefined ? (data.notes ? data.notes.trim() : null) : null,
+      now,
+      id
+    );
+
+    return db.prepare('SELECT * FROM suppliers WHERE id = ?').get(id);
+  }
+
+  static deleteSupplier(id: number): boolean {
+    const db = DBManager.getDb();
+    return db.transaction(() => {
+      const count = db.prepare('SELECT COUNT(*) as total FROM purchase_orders WHERE supplier_id = ?').get(id);
+      if (count && count.total > 0) {
+        throw new Error('Cannot delete supplier with existing purchase orders.');
+      }
+      db.prepare('UPDATE products SET supplier_id = NULL WHERE supplier_id = ?').run(id);
+      const res = db.prepare('DELETE FROM suppliers WHERE id = ?').run(id);
+      return res.changes > 0;
+    })();
+  }
 }

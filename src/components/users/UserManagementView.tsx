@@ -115,11 +115,11 @@ export const UserManagementView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#080808] flex items-center gap-2">
-            <UserCog className="text-[#353536]" size={22} />
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <UserCog className="text-[#ACADB1]" size={22} />
             User Accounts & Role Permissions
           </h1>
-          <p className="text-xs text-[#706F70]">
+          <p className="text-xs text-[#ACADB1]">
             Manage staff credentials, access levels (Administrator, Manager, Cashier), and account activation.
           </p>
         </div>
@@ -132,32 +132,32 @@ export const UserManagementView: React.FC = () => {
 
       {/* Role Summary Guide */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <GlassCard className="p-4 space-y-1.5 border-l-4 border-l-[#080808]">
+        <GlassCard className="p-4 space-y-1.5 border-l-4 border-l-white bg-white/[0.03]">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-[#080808]" />
-            <span className="font-bold text-xs text-[#080808]">Administrator</span>
+            <ShieldCheck size={16} className="text-white" />
+            <span className="font-bold text-xs text-white">Administrator</span>
           </div>
-          <p className="text-[11px] text-[#706F70]">
+          <p className="text-[11px] text-[#ACADB1]">
             Full unrestricted control: configuration, database backups, financial reports, user administration, and system settings.
           </p>
         </GlassCard>
 
-        <GlassCard className="p-4 space-y-1.5 border-l-4 border-l-[#706F70]">
+        <GlassCard className="p-4 space-y-1.5 border-l-4 border-l-[#ACADB1] bg-white/[0.03]">
           <div className="flex items-center gap-2">
-            <Shield size={16} className="text-[#706F70]" />
-            <span className="font-bold text-xs text-[#080808]">Store Manager</span>
+            <Shield size={16} className="text-[#ACADB1]" />
+            <span className="font-bold text-xs text-white">Store Manager</span>
           </div>
-          <p className="text-[11px] text-[#706F70]">
+          <p className="text-[11px] text-[#ACADB1]">
             Operational control: inventory management, supplier purchases, stock adjustments, returns authorization, and sales history.
           </p>
         </GlassCard>
 
-        <GlassCard className="p-4 space-y-1.5 border-l-4 border-l-[#ACADB1]">
+        <GlassCard className="p-4 space-y-1.5 border-l-4 border-l-[#706F70] bg-white/[0.03]">
           <div className="flex items-center gap-2">
             <UserIcon size={16} className="text-[#ACADB1]" />
-            <span className="font-bold text-xs text-[#080808]">Point of Sale Cashier</span>
+            <span className="font-bold text-xs text-white">Point of Sale Cashier</span>
           </div>
-          <p className="text-[11px] text-[#706F70]">
+          <p className="text-[11px] text-[#ACADB1]">
             Fast POS billing: product scan/search, customer cart processing, payment tender, and receipt issuance.
           </p>
         </GlassCard>
@@ -165,15 +165,15 @@ export const UserManagementView: React.FC = () => {
 
       {/* User Table */}
       <GlassCard className="overflow-hidden">
-        <div className="p-4 border-b border-black/5 flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#080808]">Registered Accounts</span>
-          <span className="text-[11px] font-mono text-[#706F70]">{users.length} active users</span>
+        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+          <span className="text-xs font-bold uppercase tracking-wider text-white">Registered Accounts</span>
+          <span className="text-[11px] font-mono text-[#ACADB1]">{users.length} active users</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-black/5 bg-[#EBEDF1]/60 text-[10px] font-mono uppercase tracking-wider text-[#706F70]">
+              <tr className="border-b border-white/10 bg-white/5 text-[10px] font-mono uppercase tracking-wider text-[#ACADB1]">
                 <th className="py-2.5 px-4">User</th>
                 <th className="py-2.5 px-4">Role Access</th>
                 <th className="py-2.5 px-4">Email</th>
@@ -182,10 +182,10 @@ export const UserManagementView: React.FC = () => {
                 <th className="py-2.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5">
+            <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[#706F70]">
+                  <td colSpan={6} className="py-8 text-center text-[#ACADB1]">
                     Loading accounts...
                   </td>
                 </tr>
@@ -193,22 +193,22 @@ export const UserManagementView: React.FC = () => {
                 users.map((u) => {
                   const isSelf = u.id === currentUser?.id;
                   return (
-                    <tr key={u.id} className="hover:bg-black/[0.02] transition-colors">
+                    <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-[#080808] text-white flex items-center justify-center font-mono font-bold text-[11px]">
+                          <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/20 text-white flex items-center justify-center font-mono font-bold text-[11px]">
                             {u.username.slice(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-semibold text-[#080808] flex items-center gap-1.5">
+                            <div className="font-semibold text-white flex items-center gap-1.5">
                               {u.full_name || u.username}
                               {isSelf && (
-                                <span className="text-[9px] font-mono px-1 py-0.2 bg-black/10 rounded text-[#080808]">
+                                <span className="text-[9px] font-mono px-1 py-0.2 bg-white/15 rounded text-white">
                                   You
                                 </span>
                               )}
                             </div>
-                            <div className="text-[10px] font-mono text-[#706F70]">@{u.username}</div>
+                            <div className="text-[10px] font-mono text-[#ACADB1]">@{u.username}</div>
                           </div>
                         </div>
                       </td>
@@ -227,23 +227,23 @@ export const UserManagementView: React.FC = () => {
                         </Badge>
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px] text-[#706F70]">
+                      <td className="py-3 px-4 font-mono text-[11px] text-[#ACADB1]">
                         {u.email || '—'}
                       </td>
 
                       <td className="py-3 px-4">
                         {u.status === 'active' ? (
-                          <span className="flex items-center gap-1 text-emerald-700 font-semibold text-[11px]">
+                          <span className="flex items-center gap-1 text-emerald-400 font-semibold text-[11px]">
                             <CheckCircle2 size={13} /> Active
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-[#DC2626] font-semibold text-[11px]">
+                          <span className="flex items-center gap-1 text-red-400 font-semibold text-[11px]">
                             <XCircle size={13} /> Disabled
                           </span>
                         )}
                       </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px] text-[#706F70]">
+                      <td className="py-3 px-4 font-mono text-[11px] text-[#ACADB1]">
                         {new Date(u.created_at).toLocaleDateString()}
                       </td>
 
@@ -302,15 +302,15 @@ export const UserManagementView: React.FC = () => {
           />
 
           <div>
-            <label className="block text-xs font-medium text-[#353536] mb-1">Role & Permission Tier</label>
+            <label className="block text-xs font-medium text-[#ACADB1] mb-1">Role & Permission Tier</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as any)}
-              className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+              className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
             >
-              <option value="cashier">Point of Sale Cashier (Billing & Receipts Only)</option>
-              <option value="manager">Store Manager (Inventory, Purchases & Sales Operations)</option>
-              <option value="admin">Administrator (Complete System & Financial Authority)</option>
+              <option value="cashier" className="bg-[#141415] text-white">Point of Sale Cashier (Billing & Receipts Only)</option>
+              <option value="manager" className="bg-[#141415] text-white">Store Manager (Inventory, Purchases & Sales Operations)</option>
+              <option value="admin" className="bg-[#141415] text-white">Administrator (Complete System & Financial Authority)</option>
             </select>
           </div>
 
@@ -323,7 +323,7 @@ export const UserManagementView: React.FC = () => {
             required
           />
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
             <Button variant="ghost" size="sm" onClick={() => setIsCreateOpen(false)}>
               Cancel
             </Button>

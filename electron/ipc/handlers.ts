@@ -223,6 +223,14 @@ export function registerIpcHandlers(mainWindow?: BrowserWindow): void {
     return ProductService.createCategory(name, code, description);
   });
 
+  ipcMain.handle('categories:update', async (_, { id, name, code, description }) => {
+    return ProductService.updateCategory(id, name, code, description);
+  });
+
+  ipcMain.handle('categories:delete', async (_, id: number) => {
+    return ProductService.deleteCategory(id);
+  });
+
   ipcMain.handle('units:getAll', async () => {
     return ProductService.getUnits();
   });
@@ -273,6 +281,14 @@ export function registerIpcHandlers(mainWindow?: BrowserWindow): void {
     return PurchaseService.createSupplier(data);
   });
 
+  ipcMain.handle('suppliers:update', async (_, { id, data }) => {
+    return PurchaseService.updateSupplier(id, data);
+  });
+
+  ipcMain.handle('suppliers:delete', async (_, id: number) => {
+    return PurchaseService.deleteSupplier(id);
+  });
+
   // Returns
   ipcMain.handle('returns:sales', async (_, params) => {
     const ret = ReturnService.processSalesReturn(params);
@@ -313,6 +329,14 @@ export function registerIpcHandlers(mainWindow?: BrowserWindow): void {
 
   ipcMain.handle('customers:create', async (_, data) => {
     return FinancialService.createCustomer(data);
+  });
+
+  ipcMain.handle('customers:update', async (_, { id, data }) => {
+    return FinancialService.updateCustomer(id, data);
+  });
+
+  ipcMain.handle('customers:delete', async (_, id: number) => {
+    return FinancialService.deleteCustomer(id);
   });
 
   ipcMain.handle('customers:recordPayment', async (_, params) => {

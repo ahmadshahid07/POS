@@ -3,7 +3,9 @@ import { useCartStore } from '../../store/useCartStore';
 import { useAppStore } from '../../store/useAppStore';
 import { GlassCard } from '../common/GlassCard';
 import { Button } from '../common/Button';
+import { Input } from '../common/Input';
 import { Badge } from '../common/Badge';
+import { Modal } from '../common/Modal';
 import { ReceiptModal } from './ReceiptModal';
 import { Product, Customer, ProductCategory, SaleDetail, PaymentMethod } from '../../types';
 import { playBarcodeBeep, playLowStockAlertSound, playCheckoutSuccessSound } from '../../utils/audioAlerts';
@@ -15,6 +17,7 @@ import {
   Plus,
   Minus,
   User,
+  UserPlus,
   CreditCard,
   Banknote,
   Smartphone,
@@ -67,6 +70,13 @@ export const PosView: React.FC = () => {
   // Completed sale receipt modal
   const [completedSale, setCompletedSale] = useState<SaleDetail | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+
+  // Quick Customer Creation
+  const [isQuickCustOpen, setIsQuickCustOpen] = useState(false);
+  const [quickCustName, setQuickCustName] = useState('');
+  const [quickCustPhone, setQuickCustPhone] = useState('');
+  const [quickCustLoading, setQuickCustLoading] = useState(false);
+  const [quickCustError, setQuickCustError] = useState<string | null>(null);
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
   const currencySymbol = businessSettings?.currency_symbol || '₨';
@@ -181,6 +191,49 @@ export const PosView: React.FC = () => {
   const handleQuickCash = (amount: number) => {
     setPaymentMethod('cash');
     setTenderedAmount(amount);
+  };
+
+  const handleQuickCreateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickCustName.trim()) return;
+    setQuickCustLoading(true);
+    setQuickCustError(null);
+    try {
+      if (typeof window !== 'undefined' && (window as any).skythsAPI) {
+        const newCust = await (window as any).skythsAPI.createCustomer({
+          name: quickCustName.trim(),
+          phone: quickCustPhone.trim() || undefined,
+        });
+        setCustomers((prev) => [...prev, newCust]);
+        setSelectedCustomer(newCust);
+        setQuickCustName('');
+        setQuickCustPhone('');
+        setIsQuickCustOpen(false);
+      } else {
+        const mockCust: Customer = {
+          id: Date.now(),
+          name: quickCustName.trim(),
+          phone: quickCustPhone.trim() || null,
+          email: null,
+          address: null,
+          notes: null,
+          total_purchases: 0,
+          total_paid: 0,
+          balance_receivable: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        setCustomers((prev) => [...prev, mockCust]);
+        setSelectedCustomer(mockCust);
+        setQuickCustName('');
+        setQuickCustPhone('');
+        setIsQuickCustOpen(false);
+      }
+    } catch (err: any) {
+      setQuickCustError(err.message || 'Failed to create customer');
+    } finally {
+      setQuickCustLoading(false);
+    }
   };
 
   // Complete Sale
@@ -400,8 +453,8 @@ export const PosView: React.FC = () => {
       <GlassCard className="w-full lg:w-96 flex flex-col h-full shrink-0 p-4 border-white/15">
         {/* Customer Selector */}
         <div className="pb-3 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <User size={15} className="text-[#ACADB1]" />
+          <div className="flex items-center gap-1.5 flex-1 min-w-0 pr-2">
+            <User size={15} className="text-[#ACADB1] shrink-0" />
             <select
               value={selectedCustomer?.id || ''}
               onChange={(e) => {
@@ -409,7 +462,7 @@ export const PosView: React.FC = () => {
                 const found = customers.find((c) => c.id === id);
                 setSelectedCustomer(found || null);
               }}
-              className="bg-[#0E0E0F] border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-white/30"
+              className="bg-[#0E0E0F] border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-white/30 flex-1 min-w-0"
             >
               <option value="">Walk-in Customer</option>
               {customers.map((c) => (
@@ -418,6 +471,16 @@ export const PosView: React.FC = () => {
                 </option>
               ))}
             </select>
+            <button
+              onClick={() => {
+                setQuickCustError(null);
+                setIsQuickCustOpen(true);
+              }}
+              title="Quick Add Customer"
+              className="p-1 rounded-lg bg-white/5 border border-white/10 hover:bg-white/15 text-[#D4D8DF] hover:text-white transition-colors shrink-0"
+            >
+              <UserPlus size={14} />
+            </button>
           </div>
 
           {items.length > 0 && (
@@ -614,6 +677,52 @@ export const PosView: React.FC = () => {
           barcodeInputRef.current?.focus();
         }}
       />
+
+      {/* Quick Customer Add Modal */}
+      <Modal
+        isOpen={isQuickCustOpen}
+        onClose={() => setIsQuickCustOpen(false)}
+        title="Quick Add Customer"
+        subtitle="Register customer details and attach directly to current sale"
+        maxWidth="sm"
+      >
+        <form onSubmit={handleQuickCreateCustomer} className="space-y-4">
+          {quickCustError && (
+            <div className="p-3 rounded-xl bg-[#DC2626]/10 border border-[#DC2626]/30 text-xs text-[#F87171]">
+              {quickCustError}
+            </div>
+          )}
+
+          <Input
+            label="Full Name *"
+            value={quickCustName}
+            onChange={(e) => setQuickCustName(e.target.value)}
+            placeholder="e.g. Tariq Mehmood"
+            autoFocus
+            required
+          />
+
+          <Input
+            label="Mobile Phone Number"
+            value={quickCustPhone}
+            onChange={(e) => setQuickCustPhone(e.target.value)}
+            placeholder="e.g. +92 300 1234567"
+          />
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setIsQuickCustOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" isLoading={quickCustLoading}>
+              Save & Attach
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

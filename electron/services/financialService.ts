@@ -1,5 +1,6 @@
 import { DBManager } from '../db/connection';
 import { BackupService } from './backupService';
+import { BusinessService } from './businessService';
 import { Customer, Payment, Expense, ExpenseCategory, CashSession, CashMovement, CustomerStatement, CustomerStatementTransaction } from '../../src/types';
 
 export class FinancialService {
@@ -163,6 +164,43 @@ export class FinancialService {
     return db.prepare('SELECT * FROM customers WHERE id = ?').get(Number(res.lastInsertRowid)) as Customer;
   }
 
+  static updateCustomer(id: number, data: Partial<Customer>): Customer {
+    const db = DBManager.getDb();
+    const now = new Date().toISOString();
+    db.prepare(`
+      UPDATE customers
+      SET name = COALESCE(?, name),
+          phone = COALESCE(?, phone),
+          email = COALESCE(?, email),
+          address = COALESCE(?, address),
+          notes = COALESCE(?, notes),
+          updated_at = ?
+      WHERE id = ?
+    `).run(
+      data.name !== undefined ? data.name.trim() : null,
+      data.phone !== undefined ? (data.phone ? data.phone.trim() : null) : null,
+      data.email !== undefined ? (data.email ? data.email.trim() : null) : null,
+      data.address !== undefined ? (data.address ? data.address.trim() : null) : null,
+      data.notes !== undefined ? (data.notes ? data.notes.trim() : null) : null,
+      now,
+      id
+    );
+
+    return db.prepare('SELECT * FROM customers WHERE id = ?').get(id) as Customer;
+  }
+
+  static deleteCustomer(id: number): boolean {
+    const db = DBManager.getDb();
+    return db.transaction(() => {
+      const count = db.prepare('SELECT COUNT(*) as total FROM sales WHERE customer_id = ?').get(id);
+      if (count && count.total > 0) {
+        throw new Error('Cannot delete customer with recorded sales history.');
+      }
+      const res = db.prepare('DELETE FROM customers WHERE id = ?').run(id);
+      return res.changes > 0;
+    })();
+  }
+
   static recordCustomerPayment(params: {
     customerId: number;
     saleId?: number | null;
@@ -300,7 +338,7 @@ export class FinancialService {
     }
 
     const now = new Date().toISOString();
-    const expenseNum = `EXP-${Date.now().toString().slice(-6)}`;
+    const expenseNum = BusinessService.getNextSequence('EXP');
 
     return db.transaction(() => {
       const res = db.prepare(`

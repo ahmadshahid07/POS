@@ -3,7 +3,6 @@ import { useAppStore } from '../../store/useAppStore';
 import { AuditLog } from '../../types';
 import { GlassCard } from '../common/GlassCard';
 import { Button } from '../common/Button';
-import { Input } from '../common/Input';
 import { Badge } from '../common/Badge';
 import {
   ScrollText,
@@ -13,7 +12,8 @@ import {
   Clock,
   Shield,
   FileCode,
-  RefreshCw
+  RefreshCw,
+  X
 } from 'lucide-react';
 
 export const AuditLogsView: React.FC = () => {
@@ -54,15 +54,17 @@ export const AuditLogsView: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#080808] flex items-center gap-2">
-            <ScrollText className="text-[#353536]" size={22} />
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-[#353536] to-[#080808] border border-white/20">
+              <ScrollText className="text-white" size={20} />
+            </div>
             Immutable Audit Trail & System Activity
           </h1>
-          <p className="text-xs text-[#706F70]">
+          <p className="text-xs text-[#ACADB1] mt-0.5">
             Permanent, tamper-evident log of all logins, stock adjustments, financial transactions, and settings updates.
           </p>
         </div>
@@ -74,7 +76,7 @@ export const AuditLogsView: React.FC = () => {
       </div>
 
       {/* Filter / Search Bar */}
-      <GlassCard className="p-3">
+      <GlassCard className="p-3 border-white/10">
         <div className="relative">
           <Search className="absolute left-3 top-2.5 text-[#706F70]" size={15} />
           <input
@@ -82,7 +84,7 @@ export const AuditLogsView: React.FC = () => {
             placeholder="Search audit trail by action (e.g. SALE_COMPLETED, STOCK_ADJUSTMENT), user, or entity..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-white/10 bg-[#0E0E0F] text-white placeholder-[#706F70] focus:outline-none focus:border-white/30"
           />
         </div>
       </GlassCard>
@@ -90,16 +92,16 @@ export const AuditLogsView: React.FC = () => {
       {/* Main Grid: Audit Table + Inspection Drawer */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className={selectedLog ? 'lg:col-span-7' : 'lg:col-span-12'}>
-          <GlassCard className="overflow-hidden">
-            <div className="p-4 border-b border-black/5 flex items-center justify-between bg-[#EBEDF1]/30">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#080808]">Security & Operation Ledger</span>
-              <span className="text-[11px] font-mono text-[#706F70]">{filteredLogs.length} events logged</span>
+          <GlassCard className="overflow-hidden border-white/10">
+            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
+              <span className="text-xs font-bold uppercase tracking-wider text-white">Security & Operation Ledger</span>
+              <span className="text-[11px] font-mono text-[#ACADB1]">{filteredLogs.length} events logged</span>
             </div>
 
             <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-black/5 bg-[#EBEDF1]/60 text-[10px] font-mono uppercase tracking-wider text-[#706F70] sticky top-0 bg-[#EBEDF1]">
+                  <tr className="border-b border-white/10 bg-[#0E0E0F] text-[10px] font-mono uppercase tracking-wider text-[#ACADB1] sticky top-0">
                     <th className="py-2.5 px-4">Timestamp</th>
                     <th className="py-2.5 px-4">Action</th>
                     <th className="py-2.5 px-4">User</th>
@@ -107,7 +109,7 @@ export const AuditLogsView: React.FC = () => {
                     <th className="py-2.5 px-4 text-right">Details</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-black/5">
+                <tbody className="divide-y divide-white/5">
                   {loading ? (
                     <tr>
                       <td colSpan={5} className="py-8 text-center text-[#706F70]">
@@ -128,19 +130,19 @@ export const AuditLogsView: React.FC = () => {
                           key={log.id}
                           onClick={() => setSelectedLog(log)}
                           className={`cursor-pointer transition-colors ${
-                            isSelected ? 'bg-black/5 font-medium' : 'hover:bg-black/[0.02]'
+                            isSelected ? 'bg-white/10 font-medium' : 'hover:bg-white/[0.02]'
                           }`}
                         >
-                          <td className="py-2.5 px-4 font-mono text-[11px] text-[#706F70] whitespace-nowrap">
+                          <td className="py-2.5 px-4 font-mono text-[11px] text-[#ACADB1] whitespace-nowrap">
                             {new Date(log.created_at).toLocaleString()}
                           </td>
                           <td className="py-2.5 px-4">
-                            <span className="font-mono text-[11px] font-bold text-[#080808]">
+                            <span className="font-mono text-[11px] font-bold text-white">
                               {log.action}
                             </span>
                           </td>
                           <td className="py-2.5 px-4">
-                            <span className="text-[11px] font-medium text-[#353536]">
+                            <span className="text-[11px] font-medium text-[#D4D8DF]">
                               @{log.username || 'system'}
                             </span>
                           </td>
@@ -153,7 +155,7 @@ export const AuditLogsView: React.FC = () => {
                                 e.stopPropagation();
                                 setSelectedLog(log);
                               }}
-                              className="text-[11px] text-[#706F70] hover:text-[#080808] font-mono underline"
+                              className="text-[11px] text-[#D4D8DF] hover:text-white font-mono underline cursor-pointer"
                             >
                               Inspect
                             </button>
@@ -171,45 +173,45 @@ export const AuditLogsView: React.FC = () => {
         {/* Inspection Panel */}
         {selectedLog && (
           <div className="lg:col-span-5">
-            <GlassCard className="p-4 space-y-4 sticky top-4">
-              <div className="flex items-center justify-between border-b border-black/10 pb-3">
+            <GlassCard className="p-4 space-y-4 sticky top-4 border-white/15">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <Shield size={16} className="text-[#353536]" />
-                  <span className="font-bold text-xs text-[#080808]">Audit Event #{selectedLog.id}</span>
+                  <Shield size={16} className="text-[#D4D8DF]" />
+                  <span className="font-bold text-xs text-white">Audit Event #{selectedLog.id}</span>
                 </div>
                 <button
                   onClick={() => setSelectedLog(null)}
-                  className="text-xs text-[#706F70] hover:text-[#080808]"
+                  className="text-xs text-[#ACADB1] hover:text-white p-1 rounded hover:bg-white/10 transition-colors"
                 >
-                  ✕ Close
+                  <X size={14} />
                 </button>
               </div>
 
               <div className="space-y-2 text-xs">
-                <div className="flex justify-between py-1 border-b border-black/5">
-                  <span className="text-[#706F70]">Action Name:</span>
-                  <span className="font-mono font-bold text-[#080808]">{selectedLog.action}</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#ACADB1]">Action Name:</span>
+                  <span className="font-mono font-bold text-white">{selectedLog.action}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-black/5">
-                  <span className="text-[#706F70]">Executing User:</span>
-                  <span className="font-medium text-[#080808]">@{selectedLog.username || 'system'}</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#ACADB1]">Executing User:</span>
+                  <span className="font-medium text-white">@{selectedLog.username || 'system'}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-black/5">
-                  <span className="text-[#706F70]">Entity Target:</span>
-                  <span className="font-mono text-[#080808]">{selectedLog.entity_type} {selectedLog.entity_id ? `(#${selectedLog.entity_id})` : ''}</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#ACADB1]">Entity Target:</span>
+                  <span className="font-mono text-white">{selectedLog.entity_type} {selectedLog.entity_id ? `(#${selectedLog.entity_id})` : ''}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-black/5">
-                  <span className="text-[#706F70]">Exact Timestamp:</span>
-                  <span className="font-mono text-[#080808]">{new Date(selectedLog.created_at).toISOString()}</span>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-[#ACADB1]">Exact Timestamp:</span>
+                  <span className="font-mono text-white">{new Date(selectedLog.created_at).toISOString()}</span>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-[#080808] flex items-center gap-1.5">
-                  <FileCode size={13} />
+                <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
+                  <FileCode size={13} className="text-[#D4D8DF]" />
                   Payload Snapshot (JSON)
                 </span>
-                <pre className="p-3 rounded-xl bg-[#080808] text-emerald-400 font-mono text-[10px] overflow-x-auto max-h-[300px] leading-relaxed">
+                <pre className="p-3 rounded-xl bg-[#080808] border border-white/10 text-emerald-400 font-mono text-[10px] overflow-x-auto max-h-[300px] leading-relaxed">
                   {selectedLog.details_json
                     ? JSON.stringify(JSON.parse(selectedLog.details_json), null, 2)
                     : 'No additional details captured.'}

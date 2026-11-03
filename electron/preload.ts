@@ -32,6 +32,8 @@ export const skythsAPI = {
   // Categories & Units
   getCategories: () => ipcRenderer.invoke('categories:getAll'),
   createCategory: (data: any) => ipcRenderer.invoke('categories:create', data),
+  updateCategory: (params: any) => ipcRenderer.invoke('categories:update', params),
+  deleteCategory: (id: number) => ipcRenderer.invoke('categories:delete', id),
   getUnits: () => ipcRenderer.invoke('units:getAll'),
 
   // POS & Sales
@@ -44,6 +46,8 @@ export const skythsAPI = {
   getPurchases: (options?: any) => ipcRenderer.invoke('purchases:getAll', options),
   getSuppliers: () => ipcRenderer.invoke('suppliers:getAll'),
   createSupplier: (data: any) => ipcRenderer.invoke('suppliers:create', data),
+  updateSupplier: (id: number, data: any) => ipcRenderer.invoke('suppliers:update', { id, data }),
+  deleteSupplier: (id: number) => ipcRenderer.invoke('suppliers:delete', id),
 
   // Returns
   processSalesReturn: (params: any) => ipcRenderer.invoke('returns:sales', params),
@@ -54,6 +58,8 @@ export const skythsAPI = {
   // Customers & Financials
   getCustomers: () => ipcRenderer.invoke('customers:getAll'),
   createCustomer: (data: any) => ipcRenderer.invoke('customers:create', data),
+  updateCustomer: (id: number, data: any) => ipcRenderer.invoke('customers:update', { id, data }),
+  deleteCustomer: (id: number) => ipcRenderer.invoke('customers:delete', id),
   recordCustomerPayment: (params: any) => ipcRenderer.invoke('customers:recordPayment', params),
 
   // Expenses

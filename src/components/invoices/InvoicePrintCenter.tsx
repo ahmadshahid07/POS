@@ -78,18 +78,18 @@ export const InvoicePrintCenter: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#080808] flex items-center gap-2">
-            <Printer className="text-[#353536]" size={22} />
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Printer className="text-[#ACADB1]" size={22} />
             Invoice & Receipt Print Center
           </h1>
-          <p className="text-xs text-[#706F70]">
+          <p className="text-xs text-[#ACADB1]">
             Reprint official invoices and receipts in 58mm, 80mm, and A4 formats without altering stock.
           </p>
         </div>
 
         {selectedSale && (
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-[#EBEDF1]/60 p-1 rounded-xl">
+            <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-xl">
               {(['58mm', '80mm', 'a4'] as const).map((fmt) => (
                 <button
                   key={fmt}
@@ -97,7 +97,7 @@ export const InvoicePrintCenter: React.FC = () => {
                   className={`px-3 py-1 rounded-lg text-xs font-mono uppercase transition-all cursor-pointer ${
                     paperFormat === fmt
                       ? 'bg-white text-[#080808] shadow-glass-sm font-bold'
-                      : 'text-[#706F70] hover:text-[#080808]'
+                      : 'text-[#ACADB1] hover:text-white'
                   }`}
                 >
                   {fmt}
@@ -157,22 +157,22 @@ export const InvoicePrintCenter: React.FC = () => {
                 placeholder="Search by invoice number or customer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-black/10 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-[#706F70] focus:outline-none focus:ring-1 focus:ring-white/20"
               />
             </div>
           </GlassCard>
 
           <GlassCard className="overflow-hidden">
-            <div className="p-3 border-b border-black/5 flex items-center justify-between bg-[#EBEDF1]/30">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#080808]">Recent Invoices</span>
-              <span className="text-[10px] font-mono text-[#706F70]">{filteredSales.length} found</span>
+            <div className="p-3 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-white">Recent Invoices</span>
+              <span className="text-[10px] font-mono text-[#ACADB1]">{filteredSales.length} found</span>
             </div>
 
-            <div className="max-h-[620px] overflow-y-auto divide-y divide-black/5">
+            <div className="max-h-[620px] overflow-y-auto divide-y divide-white/5">
               {loading ? (
-                <div className="p-8 text-center text-xs text-[#706F70]">Loading invoices...</div>
+                <div className="p-8 text-center text-xs text-[#ACADB1]">Loading invoices...</div>
               ) : filteredSales.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[#706F70]">No matching invoices found.</div>
+                <div className="p-8 text-center text-xs text-[#ACADB1]">No matching invoices found.</div>
               ) : (
                 filteredSales.map((s) => {
                   const isSelected = selectedSale?.id === s.id;
@@ -182,31 +182,31 @@ export const InvoicePrintCenter: React.FC = () => {
                       onClick={() => handleSelectSale(s.id)}
                       className={`w-full text-left p-3.5 transition-all cursor-pointer flex items-center justify-between ${
                         isSelected
-                          ? 'bg-[#080808] text-white shadow-glass-sm'
-                          : 'hover:bg-black/[0.03] text-[#353536]'
+                          ? 'bg-white/15 text-white border-l-2 border-white'
+                          : 'hover:bg-white/[0.03] text-[#D4D8DF]'
                       }`}
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className={`font-mono text-xs font-bold ${isSelected ? 'text-white' : 'text-[#080808]'}`}>
+                          <span className="font-mono text-xs font-bold text-white">
                             {s.invoice_number}
                           </span>
-                          <span className={`text-[10px] uppercase font-mono px-1.5 py-0.2 rounded ${
-                            isSelected ? 'bg-white/20 text-white' : 'bg-black/5 text-[#706F70]'
+                          <span className={`text-[10px] uppercase font-mono px-1.5 py-0.5 rounded ${
+                            isSelected ? 'bg-white/20 text-white' : 'bg-white/5 text-[#ACADB1]'
                           }`}>
                             {s.payment_method}
                           </span>
                         </div>
-                        <div className={`text-[11px] mt-0.5 ${isSelected ? 'text-[#D4D8DF]' : 'text-[#706F70]'}`}>
+                        <div className={`text-[11px] mt-0.5 ${isSelected ? 'text-[#D4D8DF]' : 'text-[#ACADB1]'}`}>
                           {s.customer_name || 'Walk-in Customer'} • {new Date(s.sale_date).toLocaleDateString()}
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <div className={`font-mono font-bold text-xs ${isSelected ? 'text-white' : 'text-[#080808]'}`}>
+                        <div className="font-mono font-bold text-xs text-white">
                           {currency} {s.grand_total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </div>
-                        <span className={`text-[10px] ${s.payment_status === 'paid' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                        <span className={`text-[10px] font-medium ${s.payment_status === 'paid' ? 'text-emerald-400' : 'text-amber-400'}`}>
                           {s.payment_status}
                         </span>
                       </div>
@@ -222,7 +222,7 @@ export const InvoicePrintCenter: React.FC = () => {
         <div className="lg:col-span-7">
           <GlassCard className="p-6">
             {!selectedSale ? (
-              <div className="py-24 text-center text-xs text-[#706F70]">
+              <div className="py-24 text-center text-xs text-[#ACADB1]">
                 Select an invoice from the list on the left to preview and print.
               </div>
             ) : (

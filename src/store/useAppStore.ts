@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { User, BusinessSettings, AppSettings, CashSession } from '../types';
 
 interface AppState {
+  appMode: 'corbel' | 'enterprise';
   user: User | null;
   activeView: string;
   isSplashFinished: boolean;
@@ -14,6 +15,7 @@ interface AppState {
   globalSearch: string;
   notifications: { id: string; title: string; message: string; type: 'info' | 'warning' | 'danger' | 'success'; date: string }[];
 
+  setAppMode: (mode: 'corbel' | 'enterprise') => void;
   setUser: (user: User | null) => void;
   setActiveView: (view: string) => void;
   setSplashFinished: (finished: boolean) => void;
@@ -31,6 +33,7 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
+  appMode: 'corbel',
   user: null,
   activeView: 'dashboard',
   isSplashFinished: false,
@@ -42,6 +45,8 @@ export const useAppStore = create<AppState>((set) => ({
   isAssistantOpen: false,
   globalSearch: '',
   notifications: [],
+
+  setAppMode: (appMode) => set({ appMode }),
 
   setUser: (user) => set({ user, isLoggedIn: !!user }),
   setActiveView: (activeView) => set({ activeView }),

@@ -3,7 +3,25 @@ import crypto from 'crypto';
 import { DBManager } from '../db/connection';
 import { User, UserRole } from '../../src/types';
 
+interface LoginAttemptTracker {
+  count: number;
+  lockedUntil: number | null;
+  lastAttempt: number;
+}
+
 export class AuthService {
+  private static failedAttempts: Map<string, LoginAttemptTracker> = new Map();
+  private static readonly MAX_FAILED_ATTEMPTS = 5;
+  private static readonly LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+  static resetLoginAttempts(username?: string): void {
+    if (username) {
+      this.failedAttempts.delete(username.toLowerCase().trim());
+    } else {
+      this.failedAttempts.clear();
+    }
+  }
+
   static async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(password, salt);
@@ -27,6 +45,19 @@ export class AuthService {
     phone?: string;
   }): Promise<{ user: User; recoveryCode: string }> {
     const db = DBManager.getDb();
+
+    if (!params.username || params.username.trim().length < 3) {
+      throw new Error('Username must be at least 3 characters long.');
+    }
+    if (!params.password || params.password.length < 6) {
+      throw new Error('Password must be at least 6 characters long.');
+    }
+
+    const existing = db.prepare('SELECT id FROM users WHERE username = ? COLLATE NOCASE').get(params.username.trim());
+    if (existing) {
+      throw new Error(`Username '${params.username}' already exists.`);
+    }
+
     const passwordHash = await this.hashPassword(params.password);
     const recoveryCode = this.generateRecoveryCode();
     const recoveryHash = await this.hashPassword(recoveryCode);
@@ -65,9 +96,33 @@ export class AuthService {
 
   static async login(username: string, password: string): Promise<{ success: boolean; user?: User; message?: string }> {
     const db = DBManager.getDb();
+    const cleanUsername = username.trim().toLowerCase();
+    const now = Date.now();
+
+    // Check brute-force lockout status
+    const tracker = this.failedAttempts.get(cleanUsername);
+    if (tracker && tracker.lockedUntil && tracker.lockedUntil > now) {
+      const remainingMinutes = Math.ceil((tracker.lockedUntil - now) / 60000);
+      return {
+        success: false,
+        message: `Account temporarily locked due to repeated failed attempts. Please try again after ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}.`
+      };
+    }
+
+    const recordFailure = () => {
+      const current = this.failedAttempts.get(cleanUsername) || { count: 0, lockedUntil: null, lastAttempt: now };
+      current.count += 1;
+      current.lastAttempt = now;
+      if (current.count >= this.MAX_FAILED_ATTEMPTS) {
+        current.lockedUntil = now + this.LOCKOUT_DURATION_MS;
+      }
+      this.failedAttempts.set(cleanUsername, current);
+    };
+
     const row = db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username.trim());
 
     if (!row) {
+      recordFailure();
       return { success: false, message: 'Invalid username or password.' };
     }
 
@@ -77,8 +132,12 @@ export class AuthService {
 
     const isValid = await this.verifyPassword(password, row.password_hash);
     if (!isValid) {
+      recordFailure();
       return { success: false, message: 'Invalid username or password.' };
     }
+
+    // Reset failed attempts on success
+    this.failedAttempts.delete(cleanUsername);
 
     const user: User = {
       id: row.id,
@@ -150,6 +209,14 @@ export class AuthService {
     phone?: string;
   }): Promise<User> {
     const db = DBManager.getDb();
+
+    if (!params.username || params.username.trim().length < 3) {
+      throw new Error('Username must be at least 3 characters long.');
+    }
+    if (!params.password || params.password.length < 6) {
+      throw new Error('Password must be at least 6 characters long.');
+    }
+
     const existing = db.prepare('SELECT id FROM users WHERE username = ? COLLATE NOCASE').get(params.username.trim());
     if (existing) {
       throw new Error(`Username '${params.username}' already exists.`);

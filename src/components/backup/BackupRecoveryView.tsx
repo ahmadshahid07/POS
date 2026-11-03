@@ -117,11 +117,11 @@ export const BackupRecoveryView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#080808] flex items-center gap-2">
-            <Database className="text-[#353536]" size={22} />
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Database className="text-[#ACADB1]" size={22} />
             Database Health, Backups & Recovery
           </h1>
-          <p className="text-xs text-[#706F70]">
+          <p className="text-xs text-[#ACADB1]">
             Create transactional SQLite backups, verify storage integrity, and safely restore historical archives.
           </p>
         </div>
@@ -142,45 +142,45 @@ export const BackupRecoveryView: React.FC = () => {
       {/* Database Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard className="p-4 space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#080808]">
-            <HardDrive size={16} className="text-[#353536]" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+            <HardDrive size={16} className="text-[#ACADB1]" />
             <span>Active Database Location</span>
           </div>
-          <div className="text-[11px] font-mono text-[#353536] truncate bg-black/5 p-2 rounded-lg" title={activeDbPath}>
+          <div className="text-[11px] font-mono text-[#D4D8DF] truncate bg-white/5 border border-white/10 p-2 rounded-lg mt-1" title={activeDbPath}>
             {activeDbPath || 'd:/drawer/SKYTHS_Data/skyths_inventory.db'}
           </div>
-          <span className="text-[10px] text-emerald-700 flex items-center gap-1 font-medium mt-1">
+          <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-medium mt-1">
             <CheckCircle2 size={12} /> SQLite WAL Mode Enabled (Persistent Storage)
           </span>
         </GlassCard>
 
         <GlassCard className="p-4 space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#080808]">
-            <ShieldCheck size={16} className="text-emerald-700" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+            <ShieldCheck size={16} className="text-emerald-400" />
             <span>Integrity & ACID Compliance</span>
           </div>
-          <div className="text-base font-bold font-mono text-emerald-800 mt-1">100% Verified</div>
-          <p className="text-[10px] text-[#706F70]">Foreign-key enforcement and zero database corruption.</p>
+          <div className="text-base font-bold font-mono text-emerald-400 mt-1">100% Verified</div>
+          <p className="text-[10px] text-[#ACADB1]">Foreign-key enforcement and zero database corruption.</p>
         </GlassCard>
 
         <GlassCard className="p-4 space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#080808]">
-            <FileCheck size={16} className="text-[#706F70]" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+            <FileCheck size={16} className="text-[#ACADB1]" />
             <span>Total Backups Recorded</span>
           </div>
-          <div className="text-base font-bold font-mono text-[#080808] mt-1">{backupLogs.length} Snapshots</div>
-          <p className="text-[10px] text-[#706F70]">Automatic safety snapshots created prior to any restore.</p>
+          <div className="text-base font-bold font-mono text-white mt-1">{backupLogs.length} Snapshots</div>
+          <p className="text-[10px] text-[#ACADB1]">Automatic safety snapshots created prior to any restore.</p>
         </GlassCard>
       </div>
 
       {/* Safety Notice Banner */}
-      <div className="p-4 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 flex items-start gap-3">
-        <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-800" />
+      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 flex items-start gap-3">
+        <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
         <div className="text-xs space-y-0.5">
-          <span className="font-bold">Offline Local-First Protection Policy</span>
-          <p className="text-[11px] text-amber-900/90 leading-relaxed">
+          <span className="font-bold text-amber-300">Offline Local-First Protection Policy</span>
+          <p className="text-[11px] text-amber-200/90 leading-relaxed">
             All business data is saved strictly to your local hard drive. Before executing any database restoration, SKYTHS
-            automatically creates an atomic pre-restore safety copy (<code className="font-mono text-[10px] bg-amber-100 px-1 rounded">.bak</code>).
+            automatically creates an atomic pre-restore safety copy (<code className="font-mono text-[10px] bg-amber-500/20 text-amber-100 px-1 rounded">.bak</code>).
             If a backup fails verification, the live database is automatically rolled back with zero data loss.
           </p>
         </div>
@@ -188,18 +188,18 @@ export const BackupRecoveryView: React.FC = () => {
 
       {/* Backup History Table */}
       <GlassCard className="overflow-hidden">
-        <div className="p-4 border-b border-black/5 flex items-center justify-between">
+        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#080808]">Historical Backups Log</h3>
-            <p className="text-[11px] text-[#706F70]">List of verified snapshots created via SQLite vacuum archive</p>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white">Historical Backups Log</h3>
+            <p className="text-[11px] text-[#ACADB1]">List of verified snapshots created via SQLite vacuum archive</p>
           </div>
-          <span className="text-[11px] font-mono text-[#706F70]">{backupLogs.length} records</span>
+          <span className="text-[11px] font-mono text-[#ACADB1]">{backupLogs.length} records</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-black/5 bg-[#EBEDF1]/60 text-[10px] font-mono uppercase tracking-wider text-[#706F70]">
+              <tr className="border-b border-white/10 bg-white/5 text-[10px] font-mono uppercase tracking-wider text-[#ACADB1]">
                 <th className="py-2.5 px-4">Backup Timestamp</th>
                 <th className="py-2.5 px-4">File Path</th>
                 <th className="py-2.5 px-4">Size</th>
@@ -207,29 +207,29 @@ export const BackupRecoveryView: React.FC = () => {
                 <th className="py-2.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5">
+            <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-[#706F70]">
+                  <td colSpan={5} className="py-8 text-center text-[#ACADB1]">
                     Checking backup records...
                   </td>
                 </tr>
               ) : backupLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-xs text-[#706F70]">
+                  <td colSpan={5} className="py-10 text-center text-xs text-[#ACADB1]">
                     No backups created yet. Click "Create Immediate Backup" above to generate your first verified copy.
                   </td>
                 </tr>
               ) : (
                 backupLogs.map((b) => (
-                  <tr key={b.id} className="hover:bg-black/[0.02] transition-colors">
-                    <td className="py-3 px-4 font-mono text-[11px] text-[#080808]">
+                  <tr key={b.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-4 font-mono text-[11px] text-white">
                       {new Date(b.created_at).toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 font-mono text-[11px] text-[#706F70] max-w-md truncate" title={b.backup_path}>
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#ACADB1] max-w-md truncate" title={b.backup_path}>
                       {b.backup_path}
                     </td>
-                    <td className="py-3 px-4 font-mono text-[11px] text-[#353536]">
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#D4D8DF]">
                       {(b.backup_size / 1024).toFixed(1)} KB
                     </td>
                     <td className="py-3 px-4">
@@ -267,23 +267,23 @@ export const BackupRecoveryView: React.FC = () => {
         maxWidth="md"
       >
         <div className="space-y-4">
-          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-900 text-xs space-y-1">
-            <span className="font-bold flex items-center gap-1.5">
+          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs space-y-1">
+            <span className="font-bold flex items-center gap-1.5 text-red-300">
               <AlertTriangle size={15} />
               Warning: Replacing Current Live Database
             </span>
-            <p className="text-[11px] text-red-800 leading-relaxed">
+            <p className="text-[11px] text-red-300/90 leading-relaxed">
               Restoring from this file will replace all current business records with the data from the selected snapshot.
               A safety copy of your active database will be created before proceeding.
             </p>
           </div>
 
-          <div className="p-3 rounded-lg bg-black/5 space-y-1">
-            <span className="text-[10px] uppercase font-mono tracking-wider text-[#706F70]">Selected Backup File:</span>
-            <p className="font-mono text-xs text-[#080808] break-all">{selectedBackupToRestore}</p>
+          <div className="p-3 rounded-lg bg-white/5 border border-white/10 space-y-1">
+            <span className="text-[10px] uppercase font-mono tracking-wider text-[#ACADB1]">Selected Backup File:</span>
+            <p className="font-mono text-xs text-white break-all">{selectedBackupToRestore}</p>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/5">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
             <Button variant="ghost" size="sm" onClick={() => setIsRestoreOpen(false)}>
               Cancel
             </Button>

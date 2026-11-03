@@ -15,8 +15,8 @@ function createWindow(): void {
     height: 880,
     minWidth: 1100,
     minHeight: 720,
-    title: 'SKYTHS — Offline Inventory & Business Management',
-    backgroundColor: '#080808',
+    title: 'Corbel Supply Co. — Inventory & Business Management',
+    backgroundColor: '#F4F5F7',
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -54,19 +54,23 @@ function createWindow(): void {
 // Check and load existing database on application launch
 function initializeStorage(): void {
   try {
-    const config = ConfigService.getConfig();
-    if (config.is_configured && config.db_path) {
-      if (fs.existsSync(config.db_path)) {
-        DBManager.initDatabase(config.db_path);
-        runMigrations();
-        console.log(`[SKYTHS] Database successfully connected at: ${config.db_path}`);
-        
-        // Automated Daily Backup Check
-        BackupService.autoDailyBackup().catch((e) => console.warn('[SKYTHS] Auto-backup check:', e.message));
-      } else {
-        console.warn(`[SKYTHS WARNING] Configured database not found at ${config.db_path}. Awaiting user recovery.`);
-      }
+    let config = ConfigService.getConfig();
+    let dbPath = config.db_path;
+
+    if (!dbPath || !fs.existsSync(dbPath)) {
+      dbPath = ConfigService.getDefaultDbPath();
+      config = ConfigService.saveConfig({
+        db_path: dbPath,
+        is_configured: true,
+      });
     }
+
+    DBManager.initDatabase(dbPath);
+    runMigrations();
+    console.log(`[SKYTHS] Database successfully connected at: ${dbPath}`);
+    
+    // Automated Daily Backup Check
+    BackupService.autoDailyBackup().catch((e) => console.warn('[SKYTHS] Auto-backup check:', e.message));
   } catch (err) {
     console.error('[SKYTHS] Failed to open configured database:', err);
   }

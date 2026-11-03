@@ -39,8 +39,18 @@ export class ReturnService {
         if (!saleItem) {
           throw new Error(`Item ${item.saleItemId} does not belong to sale ${params.saleId}.`);
         }
-        if (item.quantity > saleItem.quantity) {
-          throw new Error(`Cannot return ${item.quantity} units; only ${saleItem.quantity} were purchased.`);
+
+        // Verify cumulative previously returned quantities to prevent over-refunding
+        const priorReturns = db.prepare(`
+          SELECT COALESCE(SUM(sri.quantity), 0) as already_returned
+          FROM sales_return_items sri
+          JOIN sales_returns sr ON sr.id = sri.return_id
+          WHERE sri.sale_item_id = ? AND sr.status != 'voided' AND sr.status != 'cancelled'
+        `).get(item.saleItemId) as { already_returned: number };
+
+        const availableToReturn = saleItem.quantity - (priorReturns.already_returned || 0);
+        if (item.quantity > availableToReturn) {
+          throw new Error(`Cannot return ${item.quantity} units; only ${availableToReturn} unit(s) remain eligible for return.`);
         }
         totalRefund += item.quantity * item.refundUnitPrice;
       }

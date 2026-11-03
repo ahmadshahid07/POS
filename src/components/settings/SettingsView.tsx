@@ -173,11 +173,11 @@ export const SettingsView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#080808] flex items-center gap-2">
-            <Settings className="text-[#353536]" size={22} />
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Settings className="text-[#ACADB1]" size={22} />
             System & Business Configuration
           </h1>
-          <p className="text-xs text-[#706F70]">
+          <p className="text-xs text-[#ACADB1]">
             Customize company identity, multi-tier taxation, thermal printing hardware, and automated backups.
           </p>
         </div>
@@ -189,11 +189,11 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-black/10 pb-2 flex-wrap">
+      <div className="flex items-center gap-2 border-b border-white/10 pb-2 flex-wrap">
         <button
           onClick={() => setActiveTab('business')}
           className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-            activeTab === 'business' ? 'bg-[#080808] text-white' : 'text-[#706F70] hover:text-[#080808]'
+            activeTab === 'business' ? 'bg-white text-[#080808] shadow-glass-sm' : 'text-[#ACADB1] hover:text-white hover:bg-white/5'
           }`}
         >
           <Building2 size={14} />
@@ -203,7 +203,7 @@ export const SettingsView: React.FC = () => {
         <button
           onClick={() => setActiveTab('pos')}
           className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-            activeTab === 'pos' ? 'bg-[#080808] text-white' : 'text-[#706F70] hover:text-[#080808]'
+            activeTab === 'pos' ? 'bg-white text-[#080808] shadow-glass-sm' : 'text-[#ACADB1] hover:text-white hover:bg-white/5'
           }`}
         >
           <Printer size={14} />
@@ -213,7 +213,7 @@ export const SettingsView: React.FC = () => {
         <button
           onClick={() => setActiveTab('inventory')}
           className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-            activeTab === 'inventory' ? 'bg-[#080808] text-white' : 'text-[#706F70] hover:text-[#080808]'
+            activeTab === 'inventory' ? 'bg-white text-[#080808] shadow-glass-sm' : 'text-[#ACADB1] hover:text-white hover:bg-white/5'
           }`}
         >
           <Package size={14} />
@@ -223,7 +223,7 @@ export const SettingsView: React.FC = () => {
         <button
           onClick={() => setActiveTab('backup')}
           className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-            activeTab === 'backup' ? 'bg-[#080808] text-white' : 'text-[#706F70] hover:text-[#080808]'
+            activeTab === 'backup' ? 'bg-white text-[#080808] shadow-glass-sm' : 'text-[#ACADB1] hover:text-white hover:bg-white/5'
           }`}
         >
           <Database size={14} />
@@ -235,8 +235,8 @@ export const SettingsView: React.FC = () => {
       {activeTab === 'business' && (
         <form onSubmit={handleSaveAll} className="space-y-6">
           <GlassCard className="p-6 space-y-4">
-            <h2 className="text-sm font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2">
-              <Building2 size={16} />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Building2 size={16} className="text-[#ACADB1]" />
               Company Details
             </h2>
 
@@ -282,22 +282,22 @@ export const SettingsView: React.FC = () => {
 
           {/* Taxation Treatment & Breakdown */}
           <GlassCard className="p-6 space-y-4">
-            <h2 className="text-sm font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2">
-              <Percent size={16} />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Percent size={16} className="text-[#ACADB1]" />
               Multi-Tier Taxation & Compliance
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-[#353536] mb-1">Tax Calculation Mode</label>
+                <label className="block text-xs font-medium text-[#ACADB1] mb-1">Tax Calculation Mode</label>
                 <select
                   value={taxMode}
                   onChange={(e) => setTaxMode(e.target.value as any)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none"
+                  className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
                 >
-                  <option value="single">Single Standard Tax Rate</option>
-                  <option value="breakdown">Multi-Tier Breakdown (GST + PST/Service Tax)</option>
-                  <option value="exempt">Tax Exempt (0% All Invoices)</option>
+                  <option value="single" className="bg-[#141415] text-white">Single Standard Tax Rate</option>
+                  <option value="breakdown" className="bg-[#141415] text-white">Multi-Tier Breakdown (GST + PST/Service Tax)</option>
+                  <option value="exempt" className="bg-[#141415] text-white">Tax Exempt (0% All Invoices)</option>
                 </select>
                 <span className="text-[10px] text-[#706F70] mt-1 block">
                   Select whether invoices calculate single tax, dual tax splits, or zero tax.
@@ -325,7 +325,7 @@ export const SettingsView: React.FC = () => {
             </div>
 
             {taxMode === 'breakdown' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-black/[0.02] border border-black/5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/10">
                 <Input
                   label="Secondary Tax Name (PST / Service Tax)"
                   value={taxLabel2}
@@ -345,14 +345,14 @@ export const SettingsView: React.FC = () => {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-black/5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-white/10">
               <Input
                 label="FBR POS Registration ID (Optional)"
                 value={fbrPosId}
                 onChange={(e) => setFbrPosId(e.target.value)}
                 placeholder="e.g. FBR-1004829-POS"
               />
-              <div className="text-[11px] text-[#706F70] flex items-center">
+              <div className="text-[11px] text-[#ACADB1] flex items-center">
                 When provided, printed receipts display the verified FBR POS invoice banner and identifier.
               </div>
             </div>
@@ -360,8 +360,8 @@ export const SettingsView: React.FC = () => {
 
           {/* Multi-Currency Support */}
           <GlassCard className="p-6 space-y-4">
-            <h2 className="text-sm font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2">
-              <Coins size={16} />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Coins size={16} className="text-[#ACADB1]" />
               Currency & Exchange Rates
             </h2>
 
@@ -375,25 +375,25 @@ export const SettingsView: React.FC = () => {
               />
 
               <div>
-                <label className="block text-xs font-medium text-[#353536] mb-1">Date Format</label>
+                <label className="block text-xs font-medium text-[#ACADB1] mb-1">Date Format</label>
                 <select
                   value={dateFormat}
                   onChange={(e) => setDateFormat(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none"
+                  className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
                 >
-                  <option value="DD-MM-YYYY">DD-MM-YYYY (Default)</option>
-                  <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
-                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                  <option value="DD-MM-YYYY" className="bg-[#141415] text-white">DD-MM-YYYY (Default)</option>
+                  <option value="YYYY-MM-DD" className="bg-[#141415] text-white">YYYY-MM-DD (ISO)</option>
+                  <option value="MM/DD/YYYY" className="bg-[#141415] text-white">MM/DD/YYYY</option>
                 </select>
               </div>
 
               <div className="flex flex-col justify-end">
-                <label className="flex items-center gap-2 cursor-pointer pb-2 text-xs font-medium text-[#080808]">
+                <label className="flex items-center gap-2 cursor-pointer pb-2 text-xs font-medium text-white">
                   <input
                     type="checkbox"
                     checked={enableSecondaryCurrency}
                     onChange={(e) => setEnableSecondaryCurrency(e.target.checked)}
-                    className="w-4 h-4 rounded text-black focus:ring-black"
+                    className="w-4 h-4 rounded text-white focus:ring-white/20"
                   />
                   <span>Show Secondary Foreign Currency on Bills</span>
                 </label>
@@ -401,7 +401,7 @@ export const SettingsView: React.FC = () => {
             </div>
 
             {enableSecondaryCurrency && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-black/[0.02] border border-black/5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/10">
                 <Input
                   label="Secondary Currency Code"
                   value={secondaryCurrencyCode}
@@ -429,8 +429,8 @@ export const SettingsView: React.FC = () => {
           </GlassCard>
 
           <GlassCard className="p-6 space-y-4">
-            <h2 className="text-sm font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2">
-              <Receipt size={16} />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Receipt size={16} className="text-[#ACADB1]" />
               Invoice & Receipt Policies
             </h2>
 
@@ -443,9 +443,9 @@ export const SettingsView: React.FC = () => {
               />
 
               <div>
-                <label className="block text-xs font-medium text-[#353536] mb-1">Customer Exchange & Return Policy</label>
+                <label className="block text-xs font-medium text-[#ACADB1] mb-1">Customer Exchange & Return Policy</label>
                 <textarea
-                  className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none"
+                  className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-[#706F70] focus:outline-none focus:ring-1 focus:ring-white/20"
                   rows={2}
                   value={returnPolicy}
                   onChange={(e) => setReturnPolicy(e.target.value)}
@@ -460,43 +460,43 @@ export const SettingsView: React.FC = () => {
       {/* TAB 2: THERMAL PRINTING & HARDWARE */}
       {activeTab === 'pos' && (
         <GlassCard className="p-6 space-y-6">
-          <div className="border-b border-black/10 pb-4">
-            <h2 className="text-sm font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2">
-              <Printer size={16} />
+          <div className="border-b border-white/10 pb-4">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Printer size={16} className="text-[#ACADB1]" />
               Direct ESC/POS Thermal Printing & Hardware
             </h2>
-            <p className="text-xs text-[#706F70] mt-1">
+            <p className="text-xs text-[#ACADB1] mt-1">
               Configure silent direct thermal printing to bypass browser print dialogs and print instantly to 58mm/80mm USB receipt printers.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-4 rounded-xl border border-black/10 bg-white space-y-3">
+            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03] space-y-3">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={silentPrintEnabled}
                   onChange={(e) => setSilentPrintEnabled(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 rounded text-black focus:ring-black"
+                  className="w-4 h-4 mt-0.5 rounded text-white focus:ring-white/20"
                 />
                 <div>
-                  <span className="text-xs font-bold text-[#080808] block">Enable Direct Silent Printing</span>
-                  <span className="text-[11px] text-[#706F70]">
+                  <span className="text-xs font-bold text-white block">Enable Direct Silent Printing</span>
+                  <span className="text-[11px] text-[#ACADB1]">
                     Directly prints receipts to the designated thermal printer without displaying Windows print preview.
                   </span>
                 </div>
               </label>
 
-              <label className="flex items-start gap-3 cursor-pointer pt-2 border-t border-black/5">
+              <label className="flex items-start gap-3 cursor-pointer pt-2 border-t border-white/5">
                 <input
                   type="checkbox"
                   checked={autoPrintOnCheckout}
                   onChange={(e) => setAutoPrintOnCheckout(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 rounded text-black focus:ring-black"
+                  className="w-4 h-4 mt-0.5 rounded text-white focus:ring-white/20"
                 />
                 <div>
-                  <span className="text-xs font-bold text-[#080808] block">Auto-Print on POS Checkout</span>
-                  <span className="text-[11px] text-[#706F70]">
+                  <span className="text-xs font-bold text-white block">Auto-Print on POS Checkout</span>
+                  <span className="text-[11px] text-[#ACADB1]">
                     Automatically triggers silent receipt printing immediately upon pressing Enter/Complete Sale.
                   </span>
                 </div>
@@ -505,15 +505,15 @@ export const SettingsView: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[#353536] mb-1">Target Thermal Printer Device</label>
+                <label className="block text-xs font-medium text-[#ACADB1] mb-1">Target Thermal Printer Device</label>
                 <select
                   value={selectedPrinter}
                   onChange={(e) => setSelectedPrinter(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none"
+                  className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
                 >
-                  <option value="">Default Operating System Printer</option>
+                  <option value="" className="bg-[#141415] text-white">Default Operating System Printer</option>
                   {availablePrinters.map((p, idx) => (
-                    <option key={idx} value={p.name}>
+                    <option key={idx} value={p.name} className="bg-[#141415] text-white">
                       {p.displayName || p.name} {p.isDefault ? '(Default)' : ''}
                     </option>
                   ))}
@@ -524,15 +524,15 @@ export const SettingsView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#353536] mb-1">Default Receipt Paper Size</label>
+                <label className="block text-xs font-medium text-[#ACADB1] mb-1">Default Receipt Paper Size</label>
                 <select
                   value={receiptPaperSize}
                   onChange={(e) => setReceiptPaperSize(e.target.value as any)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none"
+                  className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
                 >
-                  <option value="80mm">80 mm Standard Thermal Roll (POS-80)</option>
-                  <option value="58mm">58 mm Compact Thermal Roll (POS-58)</option>
-                  <option value="a4">A4 Full Commercial Invoice</option>
+                  <option value="80mm" className="bg-[#141415] text-white">80 mm Standard Thermal Roll (POS-80)</option>
+                  <option value="58mm" className="bg-[#141415] text-white">58 mm Compact Thermal Roll (POS-58)</option>
+                  <option value="a4" className="bg-[#141415] text-white">A4 Full Commercial Invoice</option>
                 </select>
               </div>
 
@@ -546,41 +546,41 @@ export const SettingsView: React.FC = () => {
           </div>
 
           {/* Sound & Audio Alerts */}
-          <div className="pt-6 border-t border-black/10">
-            <h3 className="text-xs font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2 mb-3">
-              <Volume2 size={15} />
+          <div className="pt-6 border-t border-white/10">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 mb-3">
+              <Volume2 size={15} className="text-[#ACADB1]" />
               Audio & Low-Stock Alerts (Zero-Dependency Web Audio)
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3.5 rounded-xl border border-black/10 bg-white">
+              <div className="p-3.5 rounded-xl border border-white/10 bg-white/[0.03]">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={soundEffectsEnabled}
                     onChange={(e) => setSoundEffectsEnabled(e.target.checked)}
-                    className="w-4 h-4 rounded text-black focus:ring-black"
+                    className="w-4 h-4 rounded text-white focus:ring-white/20"
                   />
                   <div>
-                    <span className="text-xs font-bold text-[#080808] block">POS Audio Sound Effects</span>
-                    <span className="text-[10px] text-[#706F70]">
+                    <span className="text-xs font-bold text-white block">POS Audio Sound Effects</span>
+                    <span className="text-[10px] text-[#ACADB1]">
                       Plays crisp scanner beep on item addition and pleasant checkout chime.
                     </span>
                   </div>
                 </label>
               </div>
 
-              <div className="p-3.5 rounded-xl border border-black/10 bg-white">
+              <div className="p-3.5 rounded-xl border border-white/10 bg-white/[0.03]">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={lowStockChimeEnabled}
                     onChange={(e) => setLowStockChimeEnabled(e.target.checked)}
-                    className="w-4 h-4 rounded text-black focus:ring-black"
+                    className="w-4 h-4 rounded text-white focus:ring-white/20"
                   />
                   <div>
-                    <span className="text-xs font-bold text-[#080808] block">Low-Stock Warning Alert Chime</span>
-                    <span className="text-[10px] text-[#706F70]">
+                    <span className="text-xs font-bold text-white block">Low-Stock Warning Alert Chime</span>
+                    <span className="text-[10px] text-[#ACADB1]">
                       Plays an audible double-tone warning when rung-up item drops at or below reorder threshold.
                     </span>
                   </div>
@@ -594,8 +594,8 @@ export const SettingsView: React.FC = () => {
       {/* TAB 3: INVENTORY RULES */}
       {activeTab === 'inventory' && (
         <GlassCard className="p-6 space-y-6">
-          <h2 className="text-sm font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2">
-            <Package size={16} />
+          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <Package size={16} className="text-[#ACADB1]" />
             Inventory Stock Rules & Thresholds
           </h2>
 
@@ -609,10 +609,10 @@ export const SettingsView: React.FC = () => {
             />
 
             <div>
-              <label className="block text-xs font-medium text-[#353536] mb-1">Negative Stock Policy</label>
-              <select className="w-full text-xs p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none">
-                <option value="disallow">Strict: Block checkout when item stock is 0 (Recommended)</option>
-                <option value="allow">Permissive: Allow backorders / negative inventory</option>
+              <label className="block text-xs font-medium text-[#ACADB1] mb-1">Negative Stock Policy</label>
+              <select className="w-full text-xs p-2.5 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-1 focus:ring-white/20">
+                <option value="disallow" className="bg-[#141415] text-white">Strict: Block checkout when item stock is 0 (Recommended)</option>
+                <option value="allow" className="bg-[#141415] text-white">Permissive: Allow backorders / negative inventory</option>
               </select>
               <span className="text-[10px] text-[#706F70] mt-1 block">Protects against inventory discrepancies.</span>
             </div>
@@ -623,45 +623,45 @@ export const SettingsView: React.FC = () => {
       {/* TAB 4: AUTOMATED BACKUPS */}
       {activeTab === 'backup' && (
         <GlassCard className="p-6 space-y-6">
-          <div className="border-b border-black/10 pb-4">
-            <h2 className="text-sm font-bold text-[#080808] uppercase tracking-wider flex items-center gap-2">
-              <Database size={16} />
+          <div className="border-b border-white/10 pb-4">
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Database size={16} className="text-[#ACADB1]" />
               Automated Scheduled Backups & Disaster Recovery
             </h2>
-            <p className="text-xs text-[#706F70] mt-1">
+            <p className="text-xs text-[#ACADB1] mt-1">
               Configure automatic background SQLite database snapshots to prevent data loss.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl border border-black/10 bg-white space-y-2">
+            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03] space-y-2">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={autoDailyBackupEnabled}
                   onChange={(e) => setAutoDailyBackupEnabled(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 rounded text-black focus:ring-black"
+                  className="w-4 h-4 mt-0.5 rounded text-white focus:ring-white/20"
                 />
                 <div>
-                  <span className="text-xs font-bold text-[#080808] block">Daily Scheduled Automated Backup</span>
-                  <span className="text-[11px] text-[#706F70]">
+                  <span className="text-xs font-bold text-white block">Daily Scheduled Automated Backup</span>
+                  <span className="text-[11px] text-[#ACADB1]">
                     Automatically creates a verified snapshot once every 24 hours on application startup.
                   </span>
                 </div>
               </label>
             </div>
 
-            <div className="p-4 rounded-xl border border-black/10 bg-white space-y-2">
+            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.03] space-y-2">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={autoBackupOnDrawerClose}
                   onChange={(e) => setAutoBackupOnDrawerClose(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 rounded text-black focus:ring-black"
+                  className="w-4 h-4 mt-0.5 rounded text-white focus:ring-white/20"
                 />
                 <div>
-                  <span className="text-xs font-bold text-[#080808] block">Auto-Backup on Cash Drawer Closing</span>
-                  <span className="text-[11px] text-[#706F70]">
+                  <span className="text-xs font-bold text-white block">Auto-Backup on Cash Drawer Closing</span>
+                  <span className="text-[11px] text-[#ACADB1]">
                     Immediately creates a fresh verified backup when a cashier closes out their shift.
                   </span>
                 </div>
@@ -669,10 +669,10 @@ export const SettingsView: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-black/[0.02] border border-black/5 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold text-[#080808] block">Run Immediate Backup Now</span>
-              <span className="text-[11px] text-[#706F70]">
+              <span className="text-xs font-bold text-white block">Run Immediate Backup Now</span>
+              <span className="text-[11px] text-[#ACADB1]">
                 Takes an instant snapshot with WAL verification without waiting for scheduled trigger.
               </span>
             </div>

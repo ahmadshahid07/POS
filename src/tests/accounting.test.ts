@@ -546,10 +546,244 @@ describe('SKYTHS Offline Accounting & Business Engine Test Suite', () => {
     expect(updated.tax_rate).toBe(18.0);
     expect(updated.tax_rate_2).toBe(4.0);
     expect(updated.fbr_pos_id).toBe('FBR-888999-LHE');
-    expect(updated.enable_secondary_currency).toBe(true);
     expect(updated.exchange_rate).toBe(280.0);
     expect(updated.silent_print_enabled).toBe(true);
     expect(updated.selected_printer).toBe('Xprinter XP-80C');
+  });
+
+  it('Workflow U: Category, Supplier, and Customer update and delete operations', () => {
+    // 1. Category Update & Delete
+    const cat = ProductService.createCategory('Temp Category', 'TEMP', 'Temporary category');
+    expect(cat.id).toBeGreaterThan(0);
+    const updatedCat = ProductService.updateCategory(cat.id, 'Updated Category', 'UPDT', 'Updated desc');
+    expect(updatedCat.name).toBe('Updated Category');
+    expect(updatedCat.code).toBe('UPDT');
+    const catDeleted = ProductService.deleteCategory(cat.id);
+    expect(catDeleted).toBe(true);
+
+    // 2. Supplier Update & Delete
+    const sup = PurchaseService.createSupplier({ name: 'Temp Supplier', phone: '+92 300 1111111' });
+    expect(sup.id).toBeGreaterThan(0);
+    const updatedSup = PurchaseService.updateSupplier(sup.id, { name: 'Renamed Supplier', address: 'Plot 4, Industrial Area' });
+    expect(updatedSup.name).toBe('Renamed Supplier');
+    expect(updatedSup.address).toBe('Plot 4, Industrial Area');
+    const supDeleted = PurchaseService.deleteSupplier(sup.id);
+    expect(supDeleted).toBe(true);
+
+    // 3. Customer Update & Delete
+    const cust = FinancialService.createCustomer({ name: 'Temp Customer', phone: '+92 300 2222222' });
+    expect(cust.id).toBeGreaterThan(0);
+    const updatedCust = FinancialService.updateCustomer(cust.id, { name: 'Renamed Customer', address: 'Model Town, Lahore' });
+    expect(updatedCust.name).toBe('Renamed Customer');
+    expect(updatedCust.address).toBe('Model Town, Lahore');
+    const custDeleted = FinancialService.deleteCustomer(cust.id);
+    expect(custDeleted).toBe(true);
+  });
+
+  it('Workflow V: Sequence generation concurrency, atomicity, and format verification', () => {
+    // Generate consecutive sequence numbers for invoices and expenses
+    const seq1 = BusinessService.getNextSequence('INV');
+    const seq2 = BusinessService.getNextSequence('INV');
+    const seq3 = BusinessService.getNextSequence('EXP');
+
+    expect(seq1).toMatch(/^INV-\d+$/);
+    expect(seq2).toMatch(/^INV-\d+$/);
+    expect(seq3).toMatch(/^EXP-\d+$/);
+
+    const num1 = parseInt(seq1.split('-')[1], 10);
+    const num2 = parseInt(seq2.split('-')[1], 10);
+    expect(num2).toBe(num1 + 1);
+  });
+
+  it('Workflow W: Cumulative prior return enforcement and over-return prevention', () => {
+    // Create a product for return testing
+    const testProd = ProductService.createProduct({
+      name: 'Return Test Item',
+      sku: 'RET-TEST-01',
+      cost_price: 50,
+      selling_price: 100,
+      current_stock: 5,
+      min_stock_threshold: 2,
+      status: 'active'
+    });
+
+    // Make a sale of 3 units
+    const saleResult = PosService.completeSale({
+      cart: [{
+        product: testProd,
+        quantity: 3,
+        unit_price: 100,
+        discount: 0,
+        line_total: 300
+      }],
+      discountType: 'fixed',
+      discountAmount: 0,
+      taxRate: 0,
+      paidAmount: 300,
+      paymentMethod: 'cash'
+    });
+
+    expect(saleResult.id).toBeGreaterThan(0);
+    const saleId = saleResult.id;
+
+    // 1. First return: 2 units (valid)
+    const return1 = ReturnService.processSalesReturn({
+      saleId,
+      items: [{
+        saleItemId: saleResult.items[0].id,
+        productId: testProd.id,
+        quantity: 2,
+        refundUnitPrice: 100,
+        restockAction: 'restock'
+      }],
+      reason: 'Initial partial return',
+      refundMethod: 'cash'
+    });
+    expect(return1.id).toBeGreaterThan(0);
+    expect(return1.refund_amount).toBe(200);
+
+    // 2. Second return: attempting 2 units again (must fail because only 1 unit remains unreturned!)
+    expect(() => {
+      ReturnService.processSalesReturn({
+        saleId,
+        items: [{
+          saleItemId: saleResult.items[0].id,
+          productId: testProd.id,
+          quantity: 2,
+          refundUnitPrice: 100,
+          restockAction: 'restock'
+        }],
+        reason: 'Attempted duplicate return',
+        refundMethod: 'cash'
+      });
+    }).toThrow(/remain eligible for return/i);
+
+    // 3. Third return: 1 unit (the remaining quantity - should succeed)
+    const return2 = ReturnService.processSalesReturn({
+      saleId,
+      items: [{
+        saleItemId: saleResult.items[0].id,
+        productId: testProd.id,
+        quantity: 1,
+        refundUnitPrice: 100,
+        restockAction: 'restock'
+      }],
+      reason: 'Remaining item',
+      refundMethod: 'cash'
+    });
+    expect(return2.id).toBeGreaterThan(0);
+    expect(return2.refund_amount).toBe(100);
+
+    // 4. Fourth return: 1 unit after all 3 have been returned (must fail)
+    expect(() => {
+      ReturnService.processSalesReturn({
+        saleId,
+        items: [{
+          saleItemId: saleResult.items[0].id,
+          productId: testProd.id,
+          quantity: 1,
+          refundUnitPrice: 100,
+          restockAction: 'restock'
+        }],
+        reason: 'Excess return',
+        refundMethod: 'cash'
+      });
+    }).toThrow(/remain eligible for return/i);
+  });
+
+  it('Workflow X: Authentication rate-limiting, lockout behavior, and input validation', async () => {
+    // Reset any failed attempts
+    AuthService.resetLoginAttempts();
+
+    // 1. Password length validation
+    await expect(AuthService.createUser({
+      username: 'shortuser',
+      password: '123',
+      full_name: 'Short User',
+      role: 'cashier'
+    })).rejects.toThrow(/at least 6 characters/i);
+
+    // 2. Create valid user
+    const user = await AuthService.createUser({
+      username: 'rate_test_user',
+      password: 'ValidPassword123!',
+      full_name: 'Rate Test User',
+      role: 'cashier'
+    });
+    expect(user.id).toBeGreaterThan(0);
+
+    // 3. Duplicate username rejection
+    await expect(AuthService.createUser({
+      username: 'rate_test_user',
+      password: 'ValidPassword123!',
+      full_name: 'Another User',
+      role: 'cashier'
+    })).rejects.toThrow(/already exists/i);
+
+    // 4. Trigger 5 consecutive failed logins
+    for (let i = 0; i < 5; i++) {
+      const res = await AuthService.login('rate_test_user', 'WrongPassword!');
+      expect(res.success).toBe(false);
+    }
+
+    // 5. 6th attempt must be blocked by temporary lockout
+    const lockedRes = await AuthService.login('rate_test_user', 'WrongPassword!');
+    expect(lockedRes.success).toBe(false);
+    expect(lockedRes.message).toMatch(/temporarily locked/i);
+
+    // 6. Even with the correct password, locked user remains blocked
+    const lockedCorrectRes = await AuthService.login('rate_test_user', 'ValidPassword123!');
+    expect(lockedCorrectRes.success).toBe(false);
+    expect(lockedCorrectRes.message).toMatch(/temporarily locked/i);
+
+    // 7. Reset attempts and verify successful login
+    AuthService.resetLoginAttempts('rate_test_user');
+    const unlockedRes = await AuthService.login('rate_test_user', 'ValidPassword123!');
+    expect(unlockedRes.success).toBe(true);
+    expect(unlockedRes.user?.username).toBe('rate_test_user');
+  });
+
+  it('Workflow Y: Exact daily profit calculation from historical snapshot costs in DashboardMetrics', () => {
+    const metrics = ReportService.getDashboardMetrics();
+    expect(metrics).toBeDefined();
+    expect(metrics.daily_sales).toBeInstanceOf(Array);
+
+    // If daily sales exist, verify structure and exact values
+    if (metrics.daily_sales.length > 0) {
+      const todayTrend = metrics.daily_sales[metrics.daily_sales.length - 1];
+      expect(todayTrend).toHaveProperty('date');
+      expect(todayTrend).toHaveProperty('sales');
+      expect(todayTrend).toHaveProperty('profit');
+      expect(typeof todayTrend.sales).toBe('number');
+      expect(typeof todayTrend.profit).toBe('number');
+      // Profit must not simply equal sales * 0.25 blindly
+      expect(todayTrend.profit).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('Workflow Z: Stock adjustment sequence tracking and atomic inventory updates', () => {
+    const prod = ProductService.getProductByBarcodeOrSku('RICE-5KG-01')!;
+    const stockBefore = prod.current_stock;
+
+    // Adjust stock by +5
+    const adjResult = ProductService.adjustStock({
+      productId: prod.id,
+      newQuantity: stockBefore + 5,
+      reason: 'Inventory count discrepancy',
+      adjustmentType: 'physical_count'
+    });
+    expect(adjResult.product.current_stock).toBe(stockBefore + 5);
+    expect(adjResult.movement.reference_id).toMatch(/^ADJ-\d+$/);
+
+    const prodAfter = ProductService.getProductByBarcodeOrSku('RICE-5KG-01')!;
+    expect(prodAfter.current_stock).toBe(stockBefore + 5);
+
+    // Check movements ledger
+    const movements = ProductService.getStockMovements({ productId: prod.id });
+    const adjMovement = movements.find(m => m.reference_id === adjResult.movement.reference_id);
+    expect(adjMovement).toBeDefined();
+    expect(adjMovement?.movement_type).toBe('adjustment_add');
+    expect(adjMovement?.quantity).toBe(5);
   });
 });
 

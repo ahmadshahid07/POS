@@ -1,4 +1,5 @@
 import { DBManager } from '../db/connection';
+import { BusinessService } from './businessService';
 import { Product, ProductCategory, ProductUnit, StockMovement, StockAdjustment } from '../../src/types';
 
 export class ProductService {
@@ -177,69 +178,71 @@ export class ProductService {
 
   static updateProduct(id: number, data: Partial<Product>, userId?: number): Product {
     const db = DBManager.getDb();
-    const current = this.getProductById(id);
-    if (!current) {
-      throw new Error(`Product with ID ${id} not found.`);
-    }
-
-    if (data.sku && data.sku.trim().toUpperCase() !== current.sku) {
-      const existingSku = db.prepare('SELECT id FROM products WHERE sku = ? COLLATE NOCASE AND id != ?').get(data.sku.trim(), id);
-      if (existingSku) {
-        throw new Error(`SKU '${data.sku}' already exists.`);
+    return db.transaction(() => {
+      const current = this.getProductById(id);
+      if (!current) {
+        throw new Error(`Product with ID ${id} not found.`);
       }
-    }
 
-    if (data.barcode && data.barcode.trim() !== current.barcode) {
-      const existingBarcode = db.prepare('SELECT id FROM products WHERE barcode = ? AND id != ?').get(data.barcode.trim(), id);
-      if (existingBarcode) {
-        throw new Error(`Barcode '${data.barcode}' is already in use.`);
+      if (data.sku && data.sku.trim().toUpperCase() !== current.sku) {
+        const existingSku = db.prepare('SELECT id FROM products WHERE sku = ? COLLATE NOCASE AND id != ?').get(data.sku.trim(), id);
+        if (existingSku) {
+          throw new Error(`SKU '${data.sku}' already exists.`);
+        }
       }
-    }
 
-    const now = new Date().toISOString();
+      if (data.barcode && data.barcode.trim() !== current.barcode) {
+        const existingBarcode = db.prepare('SELECT id FROM products WHERE barcode = ? AND id != ?').get(data.barcode.trim(), id);
+        if (existingBarcode) {
+          throw new Error(`Barcode '${data.barcode}' is already in use.`);
+        }
+      }
 
-    db.prepare(`
-      UPDATE products SET
-        name = ?,
-        sku = ?,
-        barcode = ?,
-        category_id = ?,
-        brand = ?,
-        description = ?,
-        image_url = ?,
-        cost_price = ?,
-        selling_price = ?,
-        wholesale_price = ?,
-        min_selling_price = ?,
-        min_stock_threshold = ?,
-        unit_id = ?,
-        supplier_id = ?,
-        tax_rate = ?,
-        status = ?,
-        updated_at = ?
-      WHERE id = ?
-    `).run(
-      data.name !== undefined ? data.name.trim() : current.name,
-      data.sku !== undefined ? data.sku.trim().toUpperCase() : current.sku,
-      data.barcode !== undefined ? (data.barcode ? data.barcode.trim() : null) : current.barcode,
-      data.category_id !== undefined ? data.category_id : current.category_id,
-      data.brand !== undefined ? (data.brand ? data.brand.trim() : null) : current.brand,
-      data.description !== undefined ? data.description : current.description,
-      data.image_url !== undefined ? data.image_url : current.image_url,
-      data.cost_price !== undefined ? Number(data.cost_price) : current.cost_price,
-      data.selling_price !== undefined ? Number(data.selling_price) : current.selling_price,
-      data.wholesale_price !== undefined ? (data.wholesale_price ? Number(data.wholesale_price) : null) : current.wholesale_price,
-      data.min_selling_price !== undefined ? (data.min_selling_price ? Number(data.min_selling_price) : null) : current.min_selling_price,
-      data.min_stock_threshold !== undefined ? Number(data.min_stock_threshold) : current.min_stock_threshold,
-      data.unit_id !== undefined ? data.unit_id : current.unit_id,
-      data.supplier_id !== undefined ? data.supplier_id : current.supplier_id,
-      data.tax_rate !== undefined ? Number(data.tax_rate) : current.tax_rate,
-      data.status !== undefined ? data.status : current.status,
-      now,
-      id
-    );
+      const now = new Date().toISOString();
 
-    return this.getProductById(id)!;
+      db.prepare(`
+        UPDATE products SET
+          name = ?,
+          sku = ?,
+          barcode = ?,
+          category_id = ?,
+          brand = ?,
+          description = ?,
+          image_url = ?,
+          cost_price = ?,
+          selling_price = ?,
+          wholesale_price = ?,
+          min_selling_price = ?,
+          min_stock_threshold = ?,
+          unit_id = ?,
+          supplier_id = ?,
+          tax_rate = ?,
+          status = ?,
+          updated_at = ?
+        WHERE id = ?
+      `).run(
+        data.name !== undefined ? data.name.trim() : current.name,
+        data.sku !== undefined ? data.sku.trim().toUpperCase() : current.sku,
+        data.barcode !== undefined ? (data.barcode ? data.barcode.trim() : null) : current.barcode,
+        data.category_id !== undefined ? data.category_id : current.category_id,
+        data.brand !== undefined ? (data.brand ? data.brand.trim() : null) : current.brand,
+        data.description !== undefined ? data.description : current.description,
+        data.image_url !== undefined ? data.image_url : current.image_url,
+        data.cost_price !== undefined ? Number(data.cost_price) : current.cost_price,
+        data.selling_price !== undefined ? Number(data.selling_price) : current.selling_price,
+        data.wholesale_price !== undefined ? (data.wholesale_price ? Number(data.wholesale_price) : null) : current.wholesale_price,
+        data.min_selling_price !== undefined ? (data.min_selling_price ? Number(data.min_selling_price) : null) : current.min_selling_price,
+        data.min_stock_threshold !== undefined ? Number(data.min_stock_threshold) : current.min_stock_threshold,
+        data.unit_id !== undefined ? data.unit_id : current.unit_id,
+        data.supplier_id !== undefined ? data.supplier_id : current.supplier_id,
+        data.tax_rate !== undefined ? Number(data.tax_rate) : current.tax_rate,
+        data.status !== undefined ? data.status : current.status,
+        now,
+        id
+      );
+
+      return this.getProductById(id)!;
+    })();
   }
 
   static adjustStock(params: {
@@ -271,7 +274,7 @@ export class ProductService {
         .run(targetStock, now, product.id);
 
       // 2. Insert stock adjustment record
-      const adjNum = `ADJ-${Date.now().toString().slice(-6)}`;
+      const adjNum = BusinessService.getNextSequence('ADJ');
       db.prepare(`
         INSERT INTO stock_adjustments (adjustment_number, product_id, adjustment_type, quantity, reason, authorized_by, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -380,6 +383,38 @@ export class ProductService {
       created_at: now,
       product_count: 0
     };
+  }
+
+  static updateCategory(id: number, name: string, code?: string, description?: string): ProductCategory {
+    const db = DBManager.getDb();
+    db.prepare('UPDATE product_categories SET name = ?, code = ?, description = ? WHERE id = ?')
+      .run(name.trim(), code ? code.trim() : null, description ? description.trim() : null, id);
+
+    const updated = db.prepare(`
+      SELECT c.*, COUNT(p.id) as product_count
+      FROM product_categories c
+      LEFT JOIN products p ON c.id = p.category_id
+      WHERE c.id = ?
+      GROUP BY c.id
+    `).get(id);
+
+    return {
+      id: updated.id,
+      name: updated.name,
+      code: updated.code,
+      description: updated.description,
+      created_at: updated.created_at,
+      product_count: updated.product_count || 0
+    };
+  }
+
+  static deleteCategory(id: number): boolean {
+    const db = DBManager.getDb();
+    return db.transaction(() => {
+      db.prepare('UPDATE products SET category_id = NULL WHERE category_id = ?').run(id);
+      const res = db.prepare('DELETE FROM product_categories WHERE id = ?').run(id);
+      return res.changes > 0;
+    })();
   }
 
   // Units

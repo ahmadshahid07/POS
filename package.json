@@ -7,7 +7,7 @@
   "license": "Proprietary",
   "scripts": {
     "dev:vite": "vite",
-    "dev:electron": "wait-on tcp:5173 && electron .",
+    "dev:electron": "npm run build:electron && wait-on tcp:5173 && node run-electron.js",
     "dev": "concurrently -k \"npm run dev:vite\" \"npm run dev:electron\"",
     "build:vite": "tsc && vite build",
     "build:electron": "tsc -p tsconfig.electron.json && node -e \"const fs = require('fs'); const path = require('path'); fs.mkdirSync('dist-electron/electron/db', {recursive: true}); fs.copyFileSync('electron/db/schema.sql', 'dist-electron/electron/db/schema.sql');\"",
